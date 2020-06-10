@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bc.admin.dao.UserInfoDao">
+
+	<!--客户信息 -->
+	<resultMap type="com.bc.dto.entity.UserInfoEntity" id="userMap">
+		<id property="id" column="id" />
+		<result property="loginName" column="login_name" />
+		<result property="passWord" column="pass_word" />
+		<result property="roleId" column="role_id" />
+		<result property="mobile" column="mobile" />
+		<result property="nickName" column="nick_name" />
+		<result property="enabledStatus" column="enabled_status" />
+		<result property="createTime" column="create_time" />
+		<result property="updateTime" column="update_time" />
+		<result property="loginTime" column="login_time" />
+		<result property="remark" column="remark" />
+	</resultMap>
+
+	<!-- 查询后台用户详情 -->
+	<select id="loginByPwd" parameterType="com.bc.admin.model.vo.UserInfoVO" resultMap="userMap">
+		select * from bc_system_user
+		<where>
+			<if test="null != loginName and '' != loginName ">
+				and login_name = #{loginName}
+			</if>
+			<if test="null != passWord and '' != passWord">
+				and pass_word = #{passWord}
+			</if>
+		</where>
+	</select>
+
+	<select id="getUserInfo" parameterType="com.bc.admin.model.vo.UserInfoVO" resultMap="userMap">
+		select id,login_name,role_id,nick_name,mobile,enabled_status,remark,
+		date_format(login_time,'%Y-%m-%d %T') login_time
+		from bc_system_user
+		where 1=1
+		<if test="null != id and '' != id">
+			and id = #{id}
+		</if>
+		<if test="null != loginName and '' != loginName">
+			and login_name = #{loginName}
+		</if>
+	</select>
+	
+	<select id="getUserInfoList" parameterType="com.bc.admin.model.vo.UserInfoVO" resultMap="userMap">
+		select id,login_name,role_id,nick_name,mobile,enabled_status,remark,
+		date_format(login_time,'%Y-%m-%d %T') login_time
+		from bc_system_user
+		<where>
+			<if test="null != loginName and '' != loginName">
+				and login_name = #{loginName}
+			</if>
+			<if test="null != nickName and '' != nickName">
+				and nick_name = #{nickName}
+			</if>
+			<if test="null != startTime and  ''!= startTime">
+				and <![CDATA[and create_time  between #{startTime} and #{endTime} ]]>
+			</if>
+			<if test="null != enabledStatus and  -1 != enabledStatus">
+				and enabled_status = #{enabledStatus}
+			</if>
+		</where>
+	</select>
+
+	<update id="updateUserInfo" parameterType="com.bc.admin.model.vo.UserInfoVO">
+		update bc_system_user
+		<set>
+			<if test="null != passWord and ''!=passWord">
+				pass_word = #{passWord},
+			</if>
+			<if test="null != mobile and ''!=mobile">
+				mobile = #{mobile},
+			</if>
+			<if test="null != remark">
+				remark = #{remark},
+			</if>
+			<if test="null != enabledStatus and  -1 != enabledStatus">
+				enabled_status = #{enabledStatus},
+			</if>
+			update_time = now()
+		</set>
+		where id = #{id}
+	</update>
+
+	<update id="updateLoginTime" parameterType="java.lang.Integer">
+		update bc_system_user set login_time = now()
+		where id = #{id}
+	</update>
+
+</mapper>

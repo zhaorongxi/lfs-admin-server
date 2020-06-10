@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bc.admin.dao.OrderInfoDao">
+
+	<!-- 查询订单详情（订单号,下游订单号,商户账号,金额,状态） -->
+	<select id="queryOrderInfo" parameterType="com.bc.interfaces.model.vo.OrderInfoVO" resultType="com.bc.admin.model.entity.OrderInfoEntity">
+		select o.id,o.agt_phone agtPhone,o.order_no orderNo,o.down_order_no reqStreamId,o.up_order_no upOrderNo,o.charge_addr chargeAddr,o.charge_money chargeMoney,
+		date_format(o.apply_time,'%Y-%m-%d %T') applyTime,date_format(o.check_time,'%Y-%m-%d %T') checkTime,o.qr_code qrCode,o.state,o.exp2 payAccount,
+		o.remark,o.error_code errorCode,o.channel_price channelPrice
+		from bc_order_charge o
+		where 1=1
+		<if test="orderNo!=null and orderNo!=''">
+			and o.order_no = #{orderNo}
+		</if>
+		<if test="agtPhone!=null and agtPhone!=''">
+			and o.agt_phone =#{agtPhone}
+		</if>
+		<if test="null != upOrderNo and '' != upOrderNo">
+			and o.up_order_no = #{upOrderNo}
+		</if>
+		<if test="reqStreamId!=null and reqStreamId!=''">
+			and o.down_order_no = #{reqStreamId}
+		</if>
+		<if test="null != state and state != -2">
+			and o.state = #{state}
+		</if>
+		<if test="null != startTime and  ''!= startTime">
+			<![CDATA[and o.apply_time  between #{startTime} and #{endTime} ]]>
+		</if>
+		<if test="null != chargeAddr and '' != chargeAddr">
+			and o.charge_addr = #{chargeAddr}
+		</if>
+		order by apply_time desc
+	</select>
+
+	<!-- 查询订单详情（订单号,下游订单号,商户账号,金额,状态） -->
+	<select id="getOrderInfoByOrderNo" parameterType="com.bc.interfaces.model.vo.OrderInfoVO" resultType="java.util.Map">
+		select o.charge_addr accountNo,bbi.bank_account accountName,o.apply_time applyTime,
+		bbi.bank_name bankName,bbi.bank_mark bankMark
+		from bc_order_charge o
+		left join bc_bank_info bbi on o.charge_addr = bbi.card_no and bbi.status = 0
+		where 1=1
+		<if test="orderNo!=null and orderNo!=''">
+			and o.order_no = #{orderNo}
+		</if>
+		<if test="reqStreamId !=null and reqStreamId!=''">
+			and o.down_order_no = #{reqStreamId}
+		</if>
+	</select>
+
+	<!-- 查询支付二维码详情 -->
+	<select id="queryQrCodeInfo" parameterType="com.bc.interfaces.model.vo.OrderInfoVO" resultType="com.bc.admin.model.entity.OrderInfoEntity">
+		select o.id,o.order_no orderNo,o.down_order_no reqStreamId,o.up_order_no upOrderNo,o.charge_money chargeMoney,
+		date_format(o.apply_time,'%Y-%m-%d %T') applyTime,o.qr_code qrCode,o.state
+		from bc_order_charge o
+		where 1=1
+		<if test="orderNo!=null and orderNo!=''">
+			and o.order_no = #{orderNo}
+		</if>
+		<if test="reqStreamId!=null and reqStreamId!=''">
+			and o.down_order_no = #{reqStreamId}
+		</if>
+		<if test="agtPhone!=null and agtPhone!=''">
+			and o.agt_phone =#{agtPhone}
+		</if>
+		order by qr_apply_time desc
+	</select>
+
+
+
+	<select id="getOrderTradeList" parameterType="java.util.Map"
+			resultType="OrderTrade">
+		SELECT
+		a.*,
+		d.agt_name agtName,
+		a.succTotal/a.sumCount successRate,
+		a.succTotalPrice - a.succTotalOutMoney - a.succTotalInMoney profit,
+		(a.succTotalOutMoney - a.succTotalInMoney)/a.succTotalInMoney profitRate
+		FROM
+		(
+		SELECT
+		e.agt_phone agtPhone,
+		e.charge_addr chargeAddr,
+		count(1) sumCount,
+		sum(case when e.state = 0 then (e.price - e.out_money) else 0 end) succTotalOutMoney,
+		sum(case when e.state = 0 then e.channel_price else 0 end) succTotalInMoney,
+		sum(case when e.state = 0 then e.price else 0 end) succTotalPrice,
+		count(case when e.state = 0 then 1 else null end) succTotal,
+		sum(case when e.state = 1 then e.out_money else 0 end) failTotalOutMoney,
+		sum(case when e.state = 1 then e.channel_price else 0 end) failTotalInMoney,
+		sum(case when e.state = 1 then e.price else 0 end) failTotalPrice,
+		count(case when e.state = 1 then 1 else null end) failTotal
+		FROM
+		bc_order_charge e,bc_product p
+		WHERE e.product_code = p.product_num
+		<if test="null != startTime and  ''!= startTime">
+			<![CDATA[and apply_time  between #{startTime} and #{endTime} ]]>
+		</if>
+		<if test="productType!=null and productType!='-2'">
+			and p.product_type = #{productType}
+		</if>
+		<if test="chargeAddr!=null and chargeAddr!=''">
+			and e.charge_addr = #{chargeAddr}
+		</if>
+		<if test="agtPhone!=null and agtPhone!=''">
+			and e.agt_phone = #{agtPhone}
+		</if>
+		GROUP BY
+		e.charge_addr,e.agt_phone,p.product_type
+		) a,
+		bc_agent d
+		WHERE
+		a.agtPhone = d.agt_phone
+		<if test="agtName!=null and agtName!=''">
+			and d.agt_name  like CONCAT('%', #{agtName},'%')
+		</if>
+	</select>
+
+	<select id="getFinanceBillList" parameterType="java.util.Map"
+			resultType="OrderTrade">
+		SELECT
+		a.*,
+		d.agt_name agtName,
+		a.succTotal/a.sumCount successRate,
+		a.succTotalPrice - a.succTotalOutMoney - a.succTotalInMoney profit,
+		(a.succTotalOutMoney - a.succTotalInMoney)/a.succTotalInMoney profitRate
+		FROM
+		(
+		SELECT
+		e.agt_phone agtPhone,
+		e.charge_addr chargeAddr,
+		e.profit productProfite,
+		bci.channel_name channelName,
+		count(1) sumCount,
+		sum(case when e.state = 0 then (e.price - e.out_money) else 0 end) succTotalOutMoney,
+		sum(case when e.state = 0 then e.channel_price else 0 end) succTotalInMoney,
+		sum(case when e.state = 0 then e.price else 0 end) succTotalPrice,
+		count(case when e.state = 0 then 1 else null end) succTotal
+		FROM
+		bc_order_charge e,bc_product p,bc_channel_info bci
+		WHERE
+		e.product_code = p.product_num
+		and e.state = 0 and bci.channel_num = e.up_chanel
+		<if test="null != startTime and  ''!= startTime">
+			<![CDATA[and apply_time  between #{startTime} and #{endTime} ]]>
+		</if>
+		GROUP BY
+		e.agt_phone,p.product_type,e.profit
+		) a,
+		bc_agent d
+		WHERE
+		a.agtPhone = d.agt_phone
+		<if test="agtName!=null and agtName!=''">
+			and d.agt_name  like CONCAT('%', #{agtName},'%')
+		</if>
+	</select>
+
+	<select id="querySumAmount" parameterType="com.bc.interfaces.model.vo.OrderInfoVO" resultType="java.lang.Integer">
+		select sum(charge_money) from bc_order_charge
+		where charge_addr = #{chargeAddr}
+		<if test="null != startTime and  ''!= startTime">
+			<![CDATA[and apply_time  between #{startTime} and #{endTime} ]]>
+		</if>
+		<if test="null != state and -1 != state">
+			and state = #{state}
+		</if>
+	</select>
+</mapper>

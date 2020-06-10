@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bc.admin.dao.BankInfoDao">
+
+	<!--客户信息 -->
+	<resultMap type="com.bc.admin.model.entity.BankInfoEntity" id="agentMap">
+		<id property="id" column="id" />
+		<result property="agtPhone" column="agt_phone" />
+		<result property="actionType" column="action_type" />
+		<result property="sourceId" column="source_id" />
+		<result property="cardNo" column="card_no" />
+		<result property="bankAccount" column="bank_account" />
+		<result property="bankMark" column="bank_mark" />
+		<result property="bankName" column="bank_name" />
+		<result property="status" column="status" />
+		<result property="bankType" column="bank_type" />
+		<result property="createTime" column="create_time" />
+		<result property="updateTime" column="update_time" />
+	</resultMap>
+
+	<!-- 查询银行账户列表详情 -->
+	<select id="queryBankList" parameterType="com.bc.admin.model.vo.BankInfoVO" resultType="com.bc.admin.model.entity.BankInfoEntity">
+		select id,agt_phone agtPhone,action_type actionType,source_id sourceId,card_no cardNo,bank_account bankAccount,
+		bank_mark bankMark,bank_name bankName,status,bank_type bankType,date_format(create_time,'%Y-%m-%d %T') createTime
+		from bc_bank_info
+		where 1=1
+		<if test="agtPhone !=null and agtPhone!=''">
+			and agt_phone = #{agtPhone}
+		</if>
+		<if test="null != startTime and  ''!= startTime">
+			<![CDATA[and create_time  between #{startTime} and #{endTime} ]]>
+		</if>
+		<if test="cardNo !=null and cardNo !=''">
+			and card_no =#{cardNo}
+		</if>
+		<if test="null != status and status != -1	">
+			and status =#{status}
+		</if>
+		<if test="null != bankAccount and bankAccount != ''	">
+			and bank_account =#{bankAccount}
+		</if>
+		<if test="null != statusIds and  statusIds.size() > 0">
+			and status in
+			<foreach collection="statusIds" item="id" index="index"
+					 open="(" close=")" separator=",">
+				#{id}
+			</foreach>
+		</if>
+		order by create_time desc
+	</select>
+
+	<!-- 查询客户列表下拉框 -->
+	<select id="querySelectList" parameterType="com.bc.admin.model.vo.BankInfoVO" resultType="com.bc.admin.model.entity.BankInfoEntity">
+		select id,card_no cardNo,bank_account bankAccount
+		from bc_bank_info
+		order by create_time desc
+	</select>
+
+	<select id="getBankInfoById" parameterType="com.bc.admin.model.vo.BankInfoVO" resultType="com.bc.admin.model.entity.BankInfoEntity">
+		select agt_phone agtPhone,card_no cardNo,status from bc_bank_info where id = #{id}
+	</select>
+
+	<select id="getBankInfoByAgtPhone" parameterType="com.bc.admin.model.vo.BankInfoVO" resultType="com.bc.admin.model.entity.BankInfoEntity">
+		select agt_phone agtPhone,card_no cardNo,status from bc_bank_info where card_no = #{cardNo} and agt_phone = #{agtPhone}
+	</select>
+
+	<select id="getBankInfoByCardNo" parameterType="com.bc.admin.model.vo.BankInfoVO" resultType="java.lang.Integer">
+		select count(1) from bc_bank_info where card_no = #{cardNo} and bank_account = #{bankAccount}
+	</select>
+
+	<update id="updateBankInfo" parameterType="com.bc.admin.model.vo.BankInfoVO">
+		update bc_bank_info
+		<set>
+			<if test="null != agtPhone and '' != agtPhone">
+				agt_phone = #{agtPhone},
+			</if>
+			<if test="null != cardNo and '' != cardNo">
+				card_no = #{cardNo},
+			</if>
+			<if test="null != bankAccount and '' != bankAccount">
+				bank_account = #{bankAccount},
+			</if>
+			<if test="null != bankName and '' != bankName">
+				bank_name = #{bankName},
+			</if>
+			<if test="null != bankType and '' != bankType">
+				bank_type = #{bankType},
+			</if>
+			<if test="null != status and status != -1">
+				status = #{status},
+			</if>
+			update_time = now()
+		</set>
+		where id = #{id}
+	</update>
+
+	<insert id="addBankInfo" parameterType="com.bc.admin.model.vo.BankInfoVO">
+		insert into bc_bank_info
+		(agt_phone,action_type,source_id,card_no,bank_account,bank_name,bank_mark,bank_type,
+		create_time,update_time,status)
+		values
+		(#{agtPhone},#{actionType},#{sourceId},#{cardNo},#{bankAccount},#{bankName},#{bankMark},
+		#{bankType},now(),now(),#{status})
+	</insert>
+
+	<delete id="deleteBankInfo">
+		delete from bc_bank_info where id = #{id}
+	</delete>
+
+</mapper>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bc.admin.dao.TransferInfoDao">
+
+	<!--转账记录信息 -->
+	<resultMap type="com.bc.admin.model.entity.TransferInfoEntity" id="transferMap">
+		<id property="id" column="id" />
+		<result property="payAccount" column="pay_account" />
+		<result property="inAccount" column="in_account" />
+		<result property="transferTime" column="transfer_time" />
+		<result property="transferMoney" column="transfer_money" />
+		<result property="transferType" column="transfer_type" />
+		<result property="fee" column="fee" />
+		<result property="operatorId" column="operator_id" />
+		<result property="remark" column="remark" />
+		<result property="createTime" column="create_time" />
+		<result property="updateTime" column="update_time" />
+	</resultMap>
+
+	<!-- 查询转账列表详情 -->
+	<select id="queryTransferList" parameterType="com.bc.admin.model.vo.TransferInfoVO" resultType="com.bc.admin.model.entity.TransferInfoEntity">
+		select btr.id,pay_account payAccount,in_account inAccount,transfer_type transferType,transfer_money transferMoney,
+		date_format(settle_start_time,'%Y-%m-%d %T') settleStartTime,date_format(settle_end_time,'%Y-%m-%d %T') settleEndTime,
+		fee,operator_id operatorId,bcu.nick_name operatorName,btr.remark,
+		date_format(btr.create_time,'%Y-%m-%d %T') createTime, date_format(btr.update_time,'%Y-%m-%d %T') updateTime
+		from bc_transfer_record btr
+		left join bc_system_user bcu on bcu.id = btr.operator_id
+		where 1=1
+		<if test="payAccount!=null and payAccount!=''">
+			and pay_account = #{payAccount}
+		</if>
+		<if test="null != settleStartTime and  ''!= settleStartTime">
+			<![CDATA[and settle_start_time >= #{settleStartTime}   ]]>
+		</if>
+
+		<if test="null != settleEndTime and  ''!= settleEndTime">
+			<![CDATA[and settle_end_time <= #{settleEndTime}   ]]>
+		</if>
+		<if test="inAccount!=null and inAccount!=''">
+			and in_account =#{inAccount}
+		</if>
+		<if test="null != transferType and transferType != -1	">
+			and transfer_type =#{transferType}
+		</if>
+		order by settle_start_time,settle_end_time desc
+	</select>
+
+	<!-- 查询客户列表下拉框 -->
+	<select id="querySelectList" parameterType="com.bc.admin.model.vo.AgentInfoVO" resultType="com.bc.admin.model.entity.AgentInfoEntity">
+		select id,agt_phone agtPhone,agt_name agtName,link_name linkName
+		from bc_agent
+		order by apply_time desc
+	</select>
+
+	<update id="updateTransferInfo" parameterType="com.bc.admin.model.vo.TransferInfoVO">
+		update bc_transfer_record
+		<set>
+			<if test="null != payAccount and '' != payAccount">
+				pay_account = #{payAccount},
+			</if>
+			<if test="null != inAccount and '' != inAccount">
+				in_account = #{inAccount},
+			</if>
+			<if test="null != transferMoney and '' != transferMoney">
+				transfer_money = #{transferMoney},
+			</if>
+			<if test="null != transferType and '' != transferType">
+				transfer_type = #{transferType},
+			</if>
+			<if test="null != fee and '' !=  fee">
+				fee = #{fee},
+			</if>
+			<if test="null != remark and '' !=  remark">
+				remark = #{remark},
+			</if>
+			update_time = now(),operator_id = #{operatorId}
+		</set>
+		where id = #{id}
+	</update>
+
+	<insert id="addTransferInfo" parameterType="com.bc.admin.model.vo.TransferInfoVO">
+		insert into bc_transfer_record
+		(pay_account,in_account,transfer_money,transfer_type,settle_start_time,settle_end_time,fee,operator_id,remark,
+		create_time,update_time)
+		values
+		(#{payAccount},#{inAccount},#{transferMoney},#{transferType},#{settleStartTime},#{settleEndTime},#{fee},#{operatorId},
+		#{remark},now(),now())
+	</insert>
+
+</mapper>

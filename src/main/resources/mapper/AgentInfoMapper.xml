@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bc.admin.dao.AgentInfoDao">
+
+	<!--客户信息 -->
+	<resultMap type="com.bc.admin.model.entity.AgentInfoEntity" id="agentMap">
+		<id property="id" column="id" />
+		<result property="agtName" column="agt_name" />
+		<result property="applyTime" column="apply_time" />
+		<result property="agtPhone" column="agt_phone" />
+		<result property="agtNo" column="agt_no" />
+		<result property="saler" column="saler" />
+		<result property="parentId" column="parent_id" />
+		<result property="agtOfficeAddr" column="agt_office_addr" />
+		<result property="linkName" column="link_name" />
+		<result property="linkMobile" column="link_mobile" />
+		<result property="remark" column="remark" />
+		<result property="agtType" column="agt_type" />
+		<result property="idCard" column="id_card" />
+		<result property="state" column="state" />
+		<result property="updateTime" column="update_time" />
+	</resultMap>
+
+	<!-- 查询客户列表详情 -->
+	<select id="queryAgentList" parameterType="com.bc.admin.model.vo.AgentInfoVO" resultType="com.bc.admin.model.entity.AgentInfoEntity">
+		select id,agt_no agtNo,agt_phone agtPhone,agt_name agtName,link_name linkName,
+		date_format(apply_time,'%Y-%m-%d %T') applyTime,agt_type agtType,
+		link_mobile linkMobile,state from bc_agent
+		where 1=1
+		<if test="agtName!=null and agtName!=''">
+			and agt_name = #{agtName}
+		</if>
+		<if test="null != startTime and  ''!= startTime">
+			<![CDATA[and apply_time  between #{startTime} and #{endTime} ]]>
+		</if>
+		<if test="agtPhone!=null and agtPhone!=''">
+			and agt_phone =#{agtPhone}
+		</if>
+		<if test="null != state and state != -1	">
+			and state =#{state}
+		</if>
+		<if test="null != agtType and agtType != -1	">
+			and agt_type =#{agtType}
+		</if>
+		order by apply_time desc
+	</select>
+
+	<!-- 查询客户列表下拉框 -->
+	<select id="querySelectList" parameterType="com.bc.admin.model.vo.AgentInfoVO" resultType="com.bc.admin.model.entity.AgentInfoEntity">
+		select id,agt_phone agtPhone,agt_name agtName,link_name linkName,state
+		from bc_agent
+		where 1=1
+		<if test="null != agtType and -1 != agtType">
+			and agt_type = #{agtType}
+		</if>
+		order by apply_time desc
+	</select>
+
+	<select id="queryAgtAccessList" resultType="com.bc.admin.model.entity.AgtAccessEntity" parameterType="com.bc.admin.model.vo.AgentInfoVO" >
+		select c.id, c.agt_no agtNo,c.app_id appId,c.app_key
+		appKey,a.agt_phone,a.agt_name,app_type appTyppe
+		from bc_agtaccess c,bc_agent a
+		where c.agt_no =  a.agt_no
+		<if test="agtPhone!=null and agtPhone!=''">
+			and a.agt_phone = #{agtPhone}
+		</if>
+		<if test="agtName!=null and agtName!=''">
+			and a.agt_name like CONCAT('%',#{agtName},'%')
+		</if>
+	</select>
+
+	<update id="updateAgentInfo" parameterType="com.bc.admin.model.vo.AgentInfoVO">
+		update bc_agent
+		<set>
+			<if test="null != agtName and '' != agtName">
+				agt_name = #{agtName},
+			</if>
+			<if test="null != linkName and '' != linkName">
+				link_name = #{linkName},
+			</if>
+			<if test="null != agtType and '' != agtType">
+				agt_type = #{agtType},
+			</if>
+			<if test="null != state and state != -1">
+				state = #{state},
+			</if>
+			<if test="null != remark">
+				remark = #{remark},
+			</if>
+			<if test="null != agtOfficeAddr">
+				agt_office_addr = #{agtOfficeAddr},
+			</if>
+			update_time = now()
+		</set>
+		where id = #{id}
+	</update>
+
+	<update id="refreshAppKey" parameterType="com.bc.interfaces.model.vo.AgtAccessVo">
+		update bc_agtaccess set app_id = #{appId},app_key = #{appKey},app_type = #{appType}
+		where agt_no = #{agtNo}
+	</update>
+
+	<insert id="addAgentInfo" parameterType="com.bc.admin.model.vo.AgentInfoVO">
+		insert into bc_agent
+		(agt_name,apply_time,agt_phone,agt_no,saler,parent_id,agt_office_addr,link_name,link_mobile,
+		remark,agt_type,id_card,update_time,state)
+		values
+		(#{agtName},now(),#{agtPhone},#{agtNo},#{saler},#{parentId},#{agtOfficeAddr},
+		#{linkName},#{linkMobile},#{remark},#{agtType},#{idCard},now(),0)
+	</insert>
+
+	<!-- 新增代理钱包余额 -->
+	<insert id="insertAgtWallet" parameterType="com.bc.interfaces.model.AgtWallet">
+		insert into
+		bc_agt_wallet
+		(agt_phone, credit, profit, freeze, last_time)
+		values
+		(#{agtPhone}, 0, 0, 0, now())
+	</insert>
+
+	<insert id="insertAgtAccess" parameterType="com.bc.interfaces.model.AgtAccess">
+		insert into
+		bc_agtaccess
+		(agt_no,app_id,app_key,app_type)
+		values
+		(#{agtNo},#{appId},#{appKey},#{appType})
+	</insert>
+	
+	<delete id="deleteAgentInfo">
+		delete from bc_agent where id = #{id}
+	</delete>
+
+</mapper>

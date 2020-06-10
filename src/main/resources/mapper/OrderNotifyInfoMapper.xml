@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bc.admin.dao.OrderNotifyInfoDao">
+
+	<!-- 查询回调订单详情（下游订单号,回调状态,订单状态） -->
+	<select id="queryNotifyOrderInfo" parameterType="com.bc.admin.model.vo.OrderNotifyInfoVO" resultType="com.bc.admin.model.entity.OrderNotifyInfoEntity">
+		select o.id,o.agt_phone agtPhone,o.req_stream_id reqStreamId,
+		date_format(o.apply_time,'%Y-%m-%d %T') applyTime,o.notify_url notifyUrl,o.state,o.flag
+		from bc_order_nofity o
+		where 1=1
+		<if test="agtPhone!=null and agtPhone!=''">
+			and o.agt_phone =#{agtPhone}
+		</if>
+		<if test="reqStreamId!=null and reqStreamId!=''">
+			and o.down_order_no = #{reqStreamId}
+		</if>
+		<if test="null != state and state != -2">
+			and o.state = #{state}
+		</if>
+		<if test="null != startTime and  ''!= startTime">
+			<![CDATA[and o.apply_time  between #{startTime} and #{endTime} ]]>
+		</if>
+		order by apply_time desc
+	</select>
+
+</mapper>

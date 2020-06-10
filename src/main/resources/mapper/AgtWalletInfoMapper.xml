@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bc.admin.dao.AgtWalletInfoDao">
+
+	<!--客户信息 -->
+	<resultMap type="com.bc.admin.model.entity.AgtWalletInfoEntity" id="agtWalletMap">
+		<id property="id" column="id" />
+		<result property="agtPhone" column="agt_phone" />
+		<result property="credit" column="credit" />
+		<result property="freeze" column="freeze" />
+		<result property="profit" column="profit" />
+		<result property="sxCredit" column="sx_credit" />
+		<result property="lastTime" column="last_time" />
+	</resultMap>
+
+	<!-- 查询商户钱包余额 -->
+	<select id="queryAgtWallet" parameterType="com.bc.admin.model.vo.AgtWalletInfoVO" resultType="com.bc.admin.model.entity.AgtWalletInfoEntity">
+		select baw.id,baw.agt_phone agtPhone,baw.freeze,baw.credit,last_time lastTime ,sum(bwa.cash_money) sumCashMoney
+		from bc_agt_wallet baw
+		left join bc_wallet_approve bwa on baw.agt_phone = bwa.agt_phone and bwa.status = 2
+		where 1=1
+		<if test="null != agtPhone and '' != agtPhone">
+			and baw.agt_phone = #{agtPhone}
+		</if>
+		group by baw.agt_phone
+	</select>
+
+	<!-- 修改保证金余额和佣金 -->
+	<select id="updateFreeze" parameterType="map" statementType="CALLABLE">
+		{call
+		procedure_agt_freeze(#{chargeMoney,mode=IN,jdbcType=DECIMAL},#{agtPhone,mode=IN,jdbcType=VARCHAR},#{result,mode=OUT,jdbcType=INTEGER})};
+	</select>
+
+</mapper>
