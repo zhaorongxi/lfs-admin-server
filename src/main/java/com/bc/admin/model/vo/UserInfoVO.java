@@ -31,6 +31,10 @@ public class UserInfoVO implements Serializable {
 
     private String remark;
 
+    private String verifyCode;
+
+    private String uuid;
+
     public Integer getId() {
         return id;
     }
@@ -136,6 +140,22 @@ public class UserInfoVO implements Serializable {
         this.remark = remark;
     }
 
+    public String getVerifyCode() {
+        return verifyCode;
+    }
+
+    public void setVerifyCode(String verifyCode) {
+        this.verifyCode = verifyCode;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
     @Override
     public String toString() {
         return "UserInfoVO{" +
@@ -152,6 +172,8 @@ public class UserInfoVO implements Serializable {
                 ", currentPage=" + currentPage +
                 ", pageSize=" + pageSize +
                 ", remark='" + remark + '\'' +
+                ", verifyCode='" + verifyCode + '\'' +
+                ", uuid='" + uuid + '\'' +
                 '}';
     }
 }

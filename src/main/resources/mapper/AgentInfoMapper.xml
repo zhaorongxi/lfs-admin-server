@@ -25,7 +25,7 @@
 	<select id="queryAgentList" parameterType="com.bc.admin.model.vo.AgentInfoVO" resultType="com.bc.admin.model.entity.AgentInfoEntity">
 		select id,agt_no agtNo,agt_phone agtPhone,agt_name agtName,link_name linkName,
 		date_format(apply_time,'%Y-%m-%d %T') applyTime,agt_type agtType,
-		link_mobile linkMobile,state from bc_agent
+		agt_office_addr agtOfficeAddr, link_mobile linkMobile,state from bc_agent
 		where 1=1
 		<if test="agtName!=null and agtName!=''">
 			and agt_name = #{agtName}
@@ -124,6 +124,15 @@
 		(agt_no,app_id,app_key,app_type)
 		values
 		(#{agtNo},#{appId},#{appKey},#{appType})
+	</insert>
+
+	<!-- 插入代理商安全相关 -->
+	<insert id="insertAgtSecurity" parameterType="AgtSecurity">
+		insert into
+		bc_agtsecurity
+		(agt_no,login_pwd,trade_pwd,screen_switch)
+		values
+		(#{agtNo},#{loginPwd},#{tradePwd},0)
 	</insert>
 	
 	<delete id="deleteAgentInfo">

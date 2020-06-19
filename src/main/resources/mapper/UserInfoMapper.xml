@@ -78,6 +78,9 @@
 			<if test="null != enabledStatus and  -1 != enabledStatus">
 				enabled_status = #{enabledStatus},
 			</if>
+			<if test="null != roleId and  -1 != roleId">
+				role_id = #{roleId},
+			</if>
 			update_time = now()
 		</set>
 		where id = #{id}
@@ -86,6 +89,10 @@
 	<update id="updateLoginTime" parameterType="java.lang.Integer">
 		update bc_system_user set login_time = now()
 		where id = #{id}
+	</update>
+
+	<update id="resetPwd" parameterType="com.bc.admin.model.vo.UserInfoVO">
+		update bc_system_user set pass_word = #{passWord} where id = #{id}
 	</update>
 
 </mapper>

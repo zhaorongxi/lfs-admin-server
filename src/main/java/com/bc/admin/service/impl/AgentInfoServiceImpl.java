@@ -10,6 +10,7 @@ import com.bc.base.dto.Result;
 import com.bc.base.dto.ResultObject;
 import com.bc.base.exception.BusinessException;
 import com.bc.base.util.CollectionUtils;
+import com.bc.base.util.MD5Utils;
 import com.bc.dao.entity.PageBean;
 import com.bc.dao.service.SystemService;
 import com.bc.interfaces.common.CommonConstants;
@@ -18,6 +19,7 @@ import com.bc.interfaces.dao.AgentDao;
 import com.bc.interfaces.log.service.LogFileService;
 import com.bc.interfaces.model.Agent;
 import com.bc.interfaces.model.AgtAccess;
+import com.bc.interfaces.model.AgtSecurity;
 import com.bc.interfaces.model.AgtWallet;
 import com.bc.interfaces.model.vo.AgtAccessVo;
 import com.bc.interfaces.model.vo.LogFileVO;
@@ -120,15 +122,16 @@ public class AgentInfoServiceImpl implements AgentInfoService {
                     AgtWallet wallet = new AgtWallet(agentInfoVO.getAgtPhone());
                     agentInfoDao.insertAgtWallet(wallet);
                     AgtAccess agtAccess = new AgtAccess();
-                    agtAccess.setAgtNo(agentInfoVO.getAgtNo());
+                    agtAccess.setAgtNo(agentInfoVO.getAgtPhone());
                     agtAccess.setAppId(Constants.getGuid().substring(0, 10));
                     agtAccess.setAppType(agentInfoVO.getSecretType());
-                    if(agentInfoVO.getSecretType().equals(CommonConstants.SECURITY_FOR_JAVA)){
-                        agtAccess.setAppKey(DESUtils.getKey());
-                    }else{
-                        agtAccess.setAppKey(DESUtils.getKey().substring(0,8));
-                    }
+                    agtAccess.setAppKey(DESUtils.getKey());
                     agentInfoDao.insertAgtAccess(agtAccess);
+
+                    // 插入安全
+                    AgtSecurity security = new AgtSecurity(agentInfoVO.getAgtPhone(), MD5Utils.getSignatureByMD5("123456"),
+                            MD5Utils.getSignatureByMD5("123456"));
+                    agentInfoDao.insertAgtSecurity(security);
 
                     String logRemark = "新增代理商为"+agentInfoVO.getAgtName();
                     String loginName = SystemService.getCurrentUser().getLoginName() == null ? "error" :SystemService.getCurrentUser().getLoginName();

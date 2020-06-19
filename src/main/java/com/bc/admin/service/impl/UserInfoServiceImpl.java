@@ -8,21 +8,28 @@ import com.bc.base.enums.ErrorCodeEnum;
 import com.bc.base.enums.ReturnCodeEnum;
 import com.bc.base.exception.BusinessException;
 import com.bc.base.exception.ServiceException;
+import com.bc.base.util.MD5Utils;
+import com.bc.base.util.StringUtils;
 import com.bc.cache.redis.RedisBase;
 import com.bc.cache.redis.base.CommonCache;
 import com.bc.cache.redis.base.StringCache;
 import com.bc.dao.entity.PageBean;
+import com.bc.dao.service.SystemService;
 import com.bc.dto.entity.UserInfoEntity;
 import com.bc.interfaces.common.Constants;
 import com.bc.interfaces.common.RedisConstants;
 import com.bc.interfaces.common.ShareConstants;
 import com.bc.interfaces.model.dto.TokenDateModelDTO;
 import com.github.pagehelper.PageHelper;
+import com.google.code.kaptcha.Producer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +37,12 @@ import java.util.List;
 public class UserInfoServiceImpl implements UserInfoService {
 
     private Logger logger = LoggerFactory.getLogger(OrderInfoServiceImpl.class);
+
+    @Value("${bc.passWordKey}")
+    private String passWordKey;
+
+    @Value("${bc.defaultPassWd}")
+    private String defaultPassWd;
 
     @Autowired
     private UserInfoDao userInfoDao;
@@ -42,6 +55,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     private StringCache stringCache;
+
+    @Resource
+    private Producer producer;
 
     @Override
     public String userLogin(UserInfoVO userInfoVO) {
@@ -85,7 +101,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         String  token =  tokenService.bulidUserToken(userId);
         UserInfoEntity user = getUserInfo(userId);
         userInfoDao.updateLoginTime(userId);
-        RedisBase.getStringCache().set(RedisConstants.USER_INFO + userId, user);
+        stringCache.set(RedisConstants.USER_INFO + userId, user);
         return  token;
     }
 
@@ -112,9 +128,37 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public void updateUserInfo(UserInfoVO userInfoVO) {
-        int result = userInfoDao.updateUserInfo(userInfoVO);
-        UserInfoEntity updateUser= userInfoDao.getUserInfo((UserInfoVO) new UserInfoVO().setId(userInfoVO.getId()));
+        Integer userId = SystemService.getCurrentUser().getId()==null ? 0 : SystemService.getCurrentUser().getId();
+        String userName = SystemService.getCurrentUser().getLoginName();
+        if(StringUtils.isBlank(userName)){
+            throw new BusinessException("未获取到登录用户信息,请先登录!");
+        }
+        if(!userName.equals("admin")){
+            userInfoVO.setId(userId);
+        }
+        userInfoDao.updateUserInfo(userInfoVO);
+        UserInfoEntity updateUser= userInfoDao.getUserInfo(userInfoVO);
         RedisBase.getStringCache().set(RedisConstants.USER_INFO+userInfoVO.getId(),updateUser);
+
+    }
+
+    @Override
+    public int resetPwd(UserInfoVO userInfoVO) {
+        String userName = SystemService.getCurrentUser().getLoginName();
+        if(StringUtils.isBlank(userName)){
+            throw new BusinessException("未获取到登录用户信息,请先登录!");
+        }
+        if(!userName.equals("admin")){
+            throw new BusinessException("非管理员用户无法重置他人密码!");
+        }
+        try {
+            String pwd = MD5Utils.encrypt(defaultPassWd,passWordKey,passWordKey);
+            userInfoVO.setPassWord(pwd);
+        } catch (Exception e) {
+            logger.error("重置密码加密时失败!",e.getMessage());
+            throw new BusinessException("重置密码加密时异常,请重试");
+        }
+        return userInfoDao.resetPwd(userInfoVO);
     }
 
     @Override
@@ -129,6 +173,40 @@ public class UserInfoServiceImpl implements UserInfoService {
             throw new ServiceException(ErrorCodeEnum.SERVICE_ERROR.getCode(),ErrorCodeEnum.SERVICE_ERROR.getMsg());
         }
         return new PageBean<UserInfoEntity>(userList);
+    }
+
+    @Override
+    public BufferedImage getVerifyCode(String uuid) {
+        //1. 生成文字验证码
+        String verifyCode = producer.createText();
+
+        //2. 设置60秒后过期
+        stringCache.set(RedisConstants.SEND_VERIFY_CODE + uuid, verifyCode,ShareConstants.VERIFY_CODE_EXPIRE);
+
+        return producer.createImage(verifyCode);
+    }
+
+    /**
+     * 验证码校验
+     * @param userInfoVO
+     * @return
+     */
+    @Override
+    public boolean validVerifyCode(UserInfoVO userInfoVO) {
+        if(StringUtils.isBlank(userInfoVO.getVerifyCode())){
+            throw new BusinessException(ErrorCodeEnum.VCODE_ERROR.getCode(), ErrorCodeEnum.VCODE_ERROR.getMsg());
+        }
+        if (RedisBase.getCommonCache().hasKey(RedisConstants.SEND_VERIFY_CODE + userInfoVO.getUuid())) {
+            String vCode = (String)stringCache.get(RedisConstants.SEND_VERIFY_CODE + userInfoVO.getUuid());
+            if(userInfoVO.getVerifyCode().equals(vCode)){
+                RedisBase.getCommonCache().delete(RedisConstants.SEND_VERIFY_CODE + userInfoVO.getUuid());
+                return true;
+            }else{
+                throw new BusinessException(ErrorCodeEnum.VCODE_ERROR.getCode(), ErrorCodeEnum.VCODE_ERROR.getMsg());
+            }
+        }else{
+            throw new BusinessException(ErrorCodeEnum.VCODE_EXPIRED.getCode(), ErrorCodeEnum.VCODE_EXPIRED.getMsg());
+        }
     }
 
     public TokenDateModelDTO parsingToken(String token) {

@@ -6,12 +6,20 @@ import com.bc.base.dto.Result;
 import com.bc.base.dto.ResultObject;
 import com.bc.base.exception.BusinessException;
 import com.bc.base.util.StringUtils;
+import com.google.code.kaptcha.Producer;
+import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/user")
@@ -22,6 +30,9 @@ public class UserInfoController {
     @Autowired
     private UserInfoService userInfoService;
 
+    @Resource
+    private Producer producer;
+
     /**
      * 用户登录接口
      * @param userInfoVO
@@ -30,6 +41,7 @@ public class UserInfoController {
      */
     @PostMapping("/userLogin")
     public Result<?> userLogin(@RequestBody UserInfoVO userInfoVO, HttpServletRequest request) {
+        userInfoService.validVerifyCode(userInfoVO);
         String accessToken = "";
         if(StringUtils.isBlank(userInfoVO.getLoginName())){
             throw new BusinessException("请求登录的用户名不能为空!");
@@ -37,6 +49,10 @@ public class UserInfoController {
 
         if(StringUtils.isBlank(userInfoVO.getPassWord())){
             throw new BusinessException("请求登录的密码不能为空!");
+        }
+
+        if(StringUtils.isBlank(userInfoVO.getVerifyCode())){
+            throw new BusinessException("验证码不能为空!");
         }
         //账户登陆
         accessToken = userInfoService.userLogin(userInfoVO);
@@ -80,6 +96,36 @@ public class UserInfoController {
         logger.info("updateUserInfo-API参数={}", user);
         userInfoService.updateUserInfo(user);
         return ResultObject.successMessage("修改用户个人信息成功");
+    }
+
+    /**
+     * 重置用户密码
+     *
+     * @param user
+     * @return
+     */
+    @RequestMapping(value = "/resetPwd", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public Result<?> resetPwd(@RequestBody UserInfoVO user) {
+        logger.info("resetPwd-API参数={}", user);
+        userInfoService.resetPwd(user);
+        return ResultObject.successMessage("重置用户密码成功");
+    }
+
+    /**
+     * 获取图形验证码
+     * @param response
+     * @param uuid
+     * @throws IOException
+     */
+    @RequestMapping(value = "/getVerifyCode", method = RequestMethod.GET)
+    public void getVerifyCode(HttpServletResponse response,String uuid) throws IOException {
+        response.setHeader("Cache-Control", "no-store, no-cache");
+        response.setContentType("image/jpeg");
+        //获取图片验证码
+        BufferedImage image = userInfoService.getVerifyCode(uuid);
+        ServletOutputStream out = response.getOutputStream();
+        ImageIO.write(image, "jpg", out);
+        IOUtils.closeQuietly(out);
     }
 
 }

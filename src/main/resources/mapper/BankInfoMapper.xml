@@ -65,7 +65,7 @@
 	</select>
 
 	<select id="getBankInfoByCardNo" parameterType="com.bc.admin.model.vo.BankInfoVO" resultType="java.lang.Integer">
-		select count(1) from bc_bank_info where card_no = #{cardNo} and bank_account = #{bankAccount}
+		select count(1) from bc_bank_info where card_no = #{cardNo} and bank_account = #{bankAccount} and status != 2
 	</select>
 
 	<update id="updateBankInfo" parameterType="com.bc.admin.model.vo.BankInfoVO">

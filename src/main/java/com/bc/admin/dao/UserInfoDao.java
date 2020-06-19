@@ -16,6 +16,8 @@ public interface UserInfoDao {
 
     List<UserInfoEntity> getUserInfoList(UserInfoVO userInfoVO);
 
+    int resetPwd(UserInfoVO userInfoVO);
+
     int updateLoginTime(@Param("id") Integer id);
 
     int updateUserInfo(UserInfoVO userInfoVO);
