@@ -11,18 +11,19 @@ import com.bc.cache.redis.base.MapCache;
 import com.bc.dao.entity.PageBean;
 import com.bc.dao.service.SystemService;
 import com.bc.interfaces.common.CommonConstants;
+import com.bc.interfaces.dao.AgentWalletDao;
 import com.bc.interfaces.dao.OrderChargeDao;
 import com.bc.interfaces.log.service.LogFileService;
 import com.bc.interfaces.model.AgtWallet;
 import com.bc.interfaces.model.OrderNotify;
 import com.bc.interfaces.model.vo.LogFileVO;
-import com.bc.interfaces.wallet.service.AgentWalletService;
 import com.github.pagehelper.PageHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +42,7 @@ public class NotifyInfoServiceImpl implements NotifyInfoService {
     private OrderChargeDao orderChargeDao;
 
     @Autowired
-    private AgentWalletService agentWalletService;
+    private AgentWalletDao agentWalletDao;
 
     @Autowired
     private LogFileService logFileService;
@@ -63,6 +64,7 @@ public class NotifyInfoServiceImpl implements NotifyInfoService {
     }
 
     @Override
+    @Transactional
     public int updateNotifyInfo(NotifyInfoVO notifyInfoVO) {
         int result = -1;
         if(notifyInfoVO.getChargeMoney() == null){
@@ -75,32 +77,47 @@ public class NotifyInfoServiceImpl implements NotifyInfoService {
         AgtWallet agtWallet = new AgtWallet();
         notify.setId(Long.valueOf(notifyInfoVO.getId()));
         logger.info("#####开始执行修改回调订单确认金额#####");
-        OrderNotify orderNotifyInfo = orderChargeDao.getOrderNotifyInfo(notify);
-        if(null != orderNotifyInfo ){
-            result = notifyInfoDao.updateNotifyInfo(notifyInfoVO);
-            if(result > 0){
-                logger.info("修改回调订单状态=#{}成功!",notifyInfoVO.getFlag());
-                if(StringUtils.isNotBlank(notifyInfoVO.getPayAccountName())){
-                    notifyInfoDao.updateOrderInfo(notifyInfoVO);
-                }
-                if(notifyInfoVO.getFlag().equals(CommonConstants.NOTIFY_CHECK_MONEY) &&
-                        orderNotifyInfo.getFlag().equals(CommonConstants.NOTIFY_WAIT_CHECK_MONEY)){
-                    logger.info("开始执行修改我方账户余额");
-                    // 增加我方账户可用余额
-                    agtWallet.setCredit(notifyInfoVO.getChargeMoney().multiply(orderNotifyInfo.getProfit()));
-                    agtWallet.setAgtPhone("system");
-                    if(agentWalletService.addAgentWallet(agtWallet) > 0){
-                        logger.info("开始执行修改商户账户可用余额");
-                        // 确认入账后,增加商户可用余额
-                        agtWallet.setCredit(notifyInfoVO.getChargeMoney().subtract(notifyInfoVO.getChargeMoney().multiply(orderNotifyInfo.getProfit())));
-                        agtWallet.setAgtPhone(orderNotifyInfo.getAgtPhone());
-                        agentWalletService.addAgentWallet(agtWallet);
+        OrderNotify orderNotifyInfo = null;
+        try {
+            orderNotifyInfo = orderChargeDao.getOrderNotifyInfo(notify);
+            if(null != orderNotifyInfo ){
+                result = notifyInfoDao.updateNotifyInfo(notifyInfoVO);
+                if(result > 0){
+                    logger.info("修改回调订单状态=#{}成功!",notifyInfoVO.getFlag());
+                    if(StringUtils.isNotBlank(notifyInfoVO.getPayAccountName())){
+                        notifyInfoDao.updateOrderInfo(notifyInfoVO);
+                    }
+                    if(notifyInfoVO.getFlag().equals(CommonConstants.NOTIFY_CHECK_MONEY) &&
+                            orderNotifyInfo.getFlag().equals(CommonConstants.NOTIFY_WAIT_CHECK_MONEY)){
+                        logger.info("开始执行修改我方账户余额");
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("agtPhone", "system");
+                        map.put("chargeMoney",notifyInfoVO.getChargeMoney().multiply(orderNotifyInfo.getProfit()));
+                        // 增加我方账户可用余额
+//                        agtWallet.setCredit(notifyInfoVO.getChargeMoney().multiply(orderNotifyInfo.getProfit()));
+//                        agtWallet.setAgtPhone("system");
+                        agentWalletDao.addAgentWallet(map);
+                        if(null != map){
+                            if(Integer.parseInt(map.get("result").toString()) == 0){
+                                logger.info("更新我方账户余额成功");
+                                logger.info("开始执行修改商户账户可用余额");
+                                // 确认入账后,增加商户可用余额
+//                                agtWallet.setCredit(notifyInfoVO.getChargeMoney().subtract(notifyInfoVO.getChargeMoney().multiply(orderNotifyInfo.getProfit())));
+//                                agtWallet.setAgtPhone(orderNotifyInfo.getAgtPhone());
+                                map.put("agtPhone", orderNotifyInfo.getAgtPhone());
+                                map.put("chargeMoney",notifyInfoVO.getChargeMoney().subtract(notifyInfoVO.getChargeMoney().multiply(orderNotifyInfo.getProfit())));
+                                agentWalletDao.addAgentWallet(map);
+                            }
+                        }
                     }
                 }
+            }else{
+                logger.error("未找到订单id={},订单号orderNo={},回调订单记录",notifyInfoVO.getId(),notifyInfoVO.getOrderNo());
+                throw new BusinessException("根据订单id,订单号为找到订单记录!");
             }
-        }else{
-            logger.error("未找到订单id={},订单号orderNo={},回调订单记录",notifyInfoVO.getId(),notifyInfoVO.getOrderNo());
-            throw new BusinessException("根据订单id,订单号为找到订单记录!");
+        } catch (BusinessException e) {
+            logger.error("执行修改账户余额异常,事务回滚!",e.getMessage());
+            throw new BusinessException("执行修改账户余额异常!");
         }
 
         try {

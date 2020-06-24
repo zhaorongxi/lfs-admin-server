@@ -81,6 +81,9 @@
 			<if test="null != roleId and  -1 != roleId">
 				role_id = #{roleId},
 			</if>
+			<if test="null != loginTime and '' != loginTime">
+				login_time = now(),
+			</if>
 			update_time = now()
 		</set>
 		where id = #{id}
