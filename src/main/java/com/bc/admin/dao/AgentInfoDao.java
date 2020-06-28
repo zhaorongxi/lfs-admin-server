@@ -19,6 +19,8 @@ public interface AgentInfoDao {
 
     List<AgtAccessEntity> queryAgtAccessList(AgentInfoVO agentInfoVO);
 
+    AgtAccess getAgtAccessInfo(AgtAccessVo agtAccessVo);
+
     int updateAgentInfo(AgentInfoVO agentInfoVO);
 
     int refreshAppKey(AgtAccessVo agtAccessVo);

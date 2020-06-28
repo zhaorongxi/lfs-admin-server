@@ -11,9 +11,12 @@ import com.bc.base.dto.ResultObject;
 import com.bc.base.exception.BusinessException;
 import com.bc.base.util.CollectionUtils;
 import com.bc.base.util.MD5Utils;
+import com.bc.base.util.StringUtils;
+import com.bc.cache.redis.base.MapCache;
 import com.bc.dao.entity.PageBean;
 import com.bc.dao.service.SystemService;
 import com.bc.interfaces.common.CommonConstants;
+import com.bc.interfaces.common.Constant;
 import com.bc.interfaces.common.Constants;
 import com.bc.interfaces.dao.AgentDao;
 import com.bc.interfaces.log.service.LogFileService;
@@ -45,6 +48,9 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Autowired
     private LogFileService logFileService;
+
+    @Autowired
+    private MapCache mapCache;
 
     @Override
     public List<AgentInfoEntity> querySelectList(AgentInfoVO agentInfoVO) {
@@ -90,7 +96,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             if (CollectionUtils.isNotEmpty(agents)) {
                 AgtAccessVo agtAccessVo = new AgtAccessVo();
                 agtAccessVo.setAgtNo(agents.get(0).getAgtNo());
-                agtAccessVo.setAppId(Constants.getGuid().substring(0, 10));
                 agtAccessVo.setAppType(agentInfoVO.getSecretType());
                 if(agentInfoVO.getSecretType().equals(CommonConstants.SECURITY_FOR_JAVA)){
                     agtAccessVo.setAppKey(DESUtils.getKey());
@@ -98,6 +103,16 @@ public class AgentInfoServiceImpl implements AgentInfoService {
                     agtAccessVo.setAppKey(DESUtils.getKey().substring(0,8));
                 }
                 result = agentInfoDao.refreshAppKey(agtAccessVo);
+                if(result <= 0){
+                    throw new BusinessException("更新商户秘钥失败!");
+                }
+                AgtAccess agtAccess = agentInfoDao.getAgtAccessInfo(agtAccessVo);
+                if(null != agtAccess && StringUtils.isNotBlank(agtAccess.getAppId())){
+                    mapCache.hset(Constant.HASH_AGENT_APP_KEY+agtAccess.getAppId(), Constant.HASH_AGENT_APP_KEY, agtAccess);
+                }else{
+                    throw new BusinessException("更新商户秘钥失败!");
+                }
+
             } else {
                 throw new BusinessException("请求刷新秘钥的商户不存在!");
             }

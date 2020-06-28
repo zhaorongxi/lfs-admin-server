@@ -140,10 +140,7 @@ public class AgentInfoController {
         if(null == agentInfoVO.getAgtPhone()){
             throw new BusinessException("请求刷新的商户账号不能为空!");
         }
-        int result = agentInfoService.refreshAppKey(agentInfoVO);
-        if(result <= 0){
-            throw new BusinessException("更新商户秘钥失败!");
-        }
+        agentInfoService.refreshAppKey(agentInfoVO);
         return  ResultObject.successMessage("更新商户秘钥成功!");
     }
 

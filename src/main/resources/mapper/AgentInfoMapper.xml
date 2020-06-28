@@ -100,6 +100,10 @@
 		where agt_no = #{agtNo}
 	</update>
 
+	<select id="getAgtAccessInfo" parameterType="com.bc.interfaces.model.vo.AgtAccessVo" resultType="com.bc.interfaces.model.AgtAccess">
+		select app_id appId,app_key appKey,app_type appType,agt_no agtNo from bc_agtaccess where agt_no = #{agtNo}
+	</select>
+
 	<insert id="addAgentInfo" parameterType="com.bc.admin.model.vo.AgentInfoVO">
 		insert into bc_agent
 		(agt_name,apply_time,agt_phone,agt_no,saler,parent_id,agt_office_addr,link_name,link_mobile,
