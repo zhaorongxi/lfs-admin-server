@@ -41,7 +41,6 @@ public class UserInfoController {
      */
     @PostMapping("/userLogin")
     public Result<?> userLogin(@RequestBody UserInfoVO userInfoVO, HttpServletRequest request) {
-        userInfoService.validVerifyCode(userInfoVO);
         String accessToken = "";
         if(StringUtils.isBlank(userInfoVO.getLoginName())){
             throw new BusinessException("请求登录的用户名不能为空!");
@@ -54,6 +53,7 @@ public class UserInfoController {
         if(StringUtils.isBlank(userInfoVO.getVerifyCode())){
             throw new BusinessException("验证码不能为空!");
         }
+        userInfoService.validVerifyCode(userInfoVO);
         //账户登陆
         accessToken = userInfoService.userLogin(userInfoVO);
 
