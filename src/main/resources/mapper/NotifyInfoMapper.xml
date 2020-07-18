@@ -80,6 +80,81 @@
 		group by bon.charge_addr
 	</select>
 
+	<select id="queryListAmount" parameterType="com.bc.admin.model.vo.NotifyInfoVO" resultType="java.util.HashMap">
+		select count(1) sumCount,
+		sum(bon.charge_money) sumAount,bon.agt_phone agtPhone,
+		DATE_FORMAT(bon.apply_time,"%Y-%m-%d") applyTime
+		from bc_order_nofity bon
+		where bon.flag != 5
+		<if test="null != startTime and  ''!= startTime">
+			<![CDATA[and bon.apply_time  between #{startTime} and #{endTime} ]]>
+		</if>
+		<if test="null != isGroupByDay and 1 == isGroupByDay">
+			group by bon.agt_phone
+		</if>
+		<if test="null != isGroupByDay and 2 == isGroupByDay">
+			group by bon.agt_phone,DATE_FORMAT(bon.apply_time,"%Y-%m-%d")
+		</if>
+
+	</select>
+
+	<select id="queryTotalAmount" parameterType="com.bc.admin.model.vo.NotifyInfoVO" resultType="java.util.HashMap">
+		select bon.agt_phone agtPhone,
+		count(case when bon.flag = 2 then bon.flag  end ) successSumCount,
+		count(case when bon.pay_account_name is not null then bon.flag end) channelSumCount,
+		count(1) sumCount,
+		count(case when bon.flag = 5 and bon.pay_account_name is not null then bon.flag  end ) failSumCount,
+		count(case when bon.flag = 5 and bon.pay_account_name is null then bon.flag end) noPaySumCount
+		from bc_order_nofity bon
+		where 1 = 1
+		<if test="null != startTime and  ''!= startTime">
+			<![CDATA[and bon.apply_time  between #{startTime} and #{endTime} ]]>
+		</if>
+		<if test="null != agtPhone and '' != agtPhone">
+			and bon.agt_phone = #{agtPhone}
+		</if>
+		group by bon.agt_phone
+	</select>
+
+	<select id="queryTotalAmountByHours" parameterType="com.bc.admin.model.vo.NotifyInfoVO" resultType="java.util.HashMap">
+		select count(1) sumCount,bon.agt_phone agtPhone,
+		DATE_FORMAT(bon.apply_time,"%Y-%m-%d %H") applyTime
+		from bc_order_nofity bon
+		where 1=1
+		<if test="null != startTime and  ''!= startTime">
+			<![CDATA[and bon.apply_time  between #{startTime} and #{endTime} ]]>
+		</if>
+		<if test="null != agtPhone and '' != agtPhone">
+			and bon.agt_phone = #{agtPhone}
+		</if>
+		group by bon.agt_phone,DATE_FORMAT(bon.apply_time,"%Y-%m-%d %H")
+	</select>
+
+	<select id="querySuccessAmount" parameterType="com.bc.admin.model.vo.NotifyInfoVO" resultType="java.util.HashMap">
+		select
+		sum(case when bon.flag = 2 then bon.charge_money  end ) successSumAmount,
+		sum(case when to_days(bon.apply_time) = to_days(now()) and bon.flag =2 then (bon.charge_money * ifnull(profit,0)) end ) todaySumAmount
+		from bc_order_nofity bon
+	</select>
+
+	<select id="querySystemAmount" parameterType="com.bc.admin.model.vo.NotifyInfoVO" resultType="java.util.HashMap">
+		select
+		(baw.credit + baw.freeze) sumUnCheckMoney,
+		sum(bwa.cash_money) sumCashMoney
+		from bc_agt_wallet baw
+		left JOIN bc_wallet_approve bwa on baw.agt_phone = bwa.agt_phone and bwa.`status` = 2
+		where baw.agt_phone = 'system'
+	</select>
+
+	<select id="queryBankAmount" parameterType="com.bc.admin.model.vo.NotifyInfoVO" resultType="java.util.HashMap">
+		select bbi.bank_account bankAccount,bbi.bank_name bankName,
+		RIGHT(bon.charge_addr,4) chargeAddr,count(1) totalCount
+		from bc_order_nofity  bon
+		left join bc_bank_info bbi on bon.charge_addr  = bbi.card_no and bbi.status = 0
+		where  to_days(bon.apply_time) = to_days(now())
+		group by bon.charge_addr order by totalCount desc
+	</select>
+
 	<select id="queryAgentSumAmount" parameterType="com.bc.admin.model.vo.NotifyInfoVO" resultType="java.util.HashMap">
 		select count(1) sumCount,bon.profit,
 		sum(bon.charge_money) sumAount,
@@ -115,6 +190,18 @@
 	</update>
 
 	<update id="updateOrderInfo" parameterType="com.bc.admin.model.vo.NotifyInfoVO">
-		update bc_order_charge set exp2 = #{payAccountName} where order_no = #{orderNo}
+		update bc_order_charge
+		<set>
+			<if test="null != payAccountName and '' != payAccountName">
+				exp2 = #{payAccountName},
+			</if>
+			<if test="null != outMoney">
+				out_money = #{outMoney},
+			</if>
+			<if test="null != chargeMoney">
+				price = #{chargeMoney}
+			</if>
+		</set>
+		where order_no = #{orderNo}
 	</update>
 </mapper>

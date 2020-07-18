@@ -64,7 +64,7 @@ public class NotifyInfoController {
     }
 
     /**
-     * 更新回调信息
+     * 查询统计订单
      * @param notifyInfoVO
      * @return
      */
@@ -78,7 +78,63 @@ public class NotifyInfoController {
     }
 
     /**
-     * 更新回调信息
+     * 查询统计订单
+     * @param notifyInfoVO
+     * @return
+     */
+    @PostMapping("/queryListAmount")
+    public Result<?> queryListAmount(@RequestBody NotifyInfoVO notifyInfoVO){
+        List<Map<String,Object>> resultMap = notifyInfoService.queryListAmount(notifyInfoVO);
+        return  ResultObject.successObject(resultMap,"查询统计订单成功!");
+    }
+
+    /**
+     * 查询成功失败总统计订单
+     * @param notifyInfoVO
+     * @return
+     */
+    @PostMapping("/queryTotalAmount")
+    public Result<?> queryTotalAmount(@RequestBody NotifyInfoVO notifyInfoVO){
+        List<Map<String,Object>> resultMap = notifyInfoService.queryTotalAmount(notifyInfoVO);
+        return  ResultObject.successObject(resultMap,"查询成功失败总统计订单成功!");
+    }
+
+    /**
+     * 查询所有银行卡统计订单
+     * @param notifyInfoVO
+     * @return
+     */
+    @PostMapping("/queryBankAmount")
+    public Result<?> queryBankAmount(@RequestBody NotifyInfoVO notifyInfoVO){
+        List<Map<String,Object>> resultMap = notifyInfoService.queryBankAmount(notifyInfoVO);
+        return  ResultObject.successObject(resultMap,"查询成功失败总统计订单成功!");
+    }
+
+    /**
+     * 查询成功失败总统计订单
+     * @param notifyInfoVO
+     * @return
+     */
+    @PostMapping("/queryTotalAmountByHours")
+    public Result<?> queryTotalAmountByHours(@RequestBody NotifyInfoVO notifyInfoVO){
+        Map<String,List<Map<String,Object>>> resultMap = notifyInfoService.queryTotalAmountByHours(notifyInfoVO);
+        return  ResultObject.successObject(resultMap,"查询成功失败总统计订单成功!");
+    }
+
+
+    /**
+     * 查询公司账户清算与未清算总计
+     * @param notifyInfoVO
+     * @return
+     */
+    @PostMapping("/querySystemAmount")
+    public Result<?> querySystemAmount(@RequestBody NotifyInfoVO notifyInfoVO){
+        Map<String,Object> resultMap = notifyInfoService.querySystemAmount(notifyInfoVO);
+        return  ResultObject.successObject(resultMap,"查询公司账户清算与未清算总计成功!");
+    }
+
+    /**
+     * 查询统计订单
      * @param notifyInfoVO
      * @return
      */

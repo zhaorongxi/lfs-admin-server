@@ -82,6 +82,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 logger.info("userAccount:{}",userAccount,"账号已被禁用,请联系管理员启用! ");
                 throw new ServiceException(ErrorCodeEnum.ACCOUNT_ERROR.getCode(), ErrorCodeEnum.ACCOUNT_ERROR.getMsg());
             }else{
+                commonCache.delete(RedisConstants.LOCK_USER_COUNT + userAccount);
                 return  buildPCToken(user.getId());
             }
         } catch (ServiceException serviceException) {

@@ -16,6 +16,18 @@ public interface NotifyInfoDao {
 
     List<Map<String,Object>> querySumAmount(NotifyInfoVO notifyInfoVO);
 
+    List<Map<String,Object>> queryListAmount(NotifyInfoVO notifyInfoVO);
+
+    List<Map<String,Object>> queryBankAmount(NotifyInfoVO notifyInfoVO);
+
+    Map<String,Object> querySystemAmount(NotifyInfoVO notifyInfoVO);
+
+    Map<String,Object> querySuccessAmount(NotifyInfoVO notifyInfoVO);
+
+    List<Map<String,Object>> queryTotalAmount(NotifyInfoVO notifyInfoVO);
+
+    List<Map<String,Object>> queryTotalAmountByHours(NotifyInfoVO notifyInfoVO);
+
     Map<String,Object> queryAgentSumAmount(NotifyInfoVO notifyInfoVO);
 
 }

@@ -38,8 +38,14 @@ public class NotifyInfoVO implements Serializable {
     private String checkTime;
     
     private String orderNo;
+
+    private BigDecimal profit;
+
+    private BigDecimal outMoney;
     
     private BigDecimal chargeMoney;
+
+    private Integer isGroupByDay;
 
     private Integer currentPage;
 
@@ -188,5 +194,29 @@ public class NotifyInfoVO implements Serializable {
 
     public void setFlagIds(List<Integer> flagIds) {
         this.flagIds = flagIds;
+    }
+
+    public Integer getIsGroupByDay() {
+        return isGroupByDay;
+    }
+
+    public void setIsGroupByDay(Integer isGroupByDay) {
+        this.isGroupByDay = isGroupByDay;
+    }
+
+    public BigDecimal getProfit() {
+        return profit;
+    }
+
+    public void setProfit(BigDecimal profit) {
+        this.profit = profit;
+    }
+
+    public BigDecimal getOutMoney() {
+        return outMoney;
+    }
+
+    public void setOutMoney(BigDecimal outMoney) {
+        this.outMoney = outMoney;
     }
 }
