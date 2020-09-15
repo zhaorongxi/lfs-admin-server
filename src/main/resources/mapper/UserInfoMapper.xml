@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bc.admin.dao.UserInfoDao">
+<mapper namespace="com.lfs.admin.dao.UserInfoDao">
 
 	<!--客户信息 -->
-	<resultMap type="com.bc.dto.entity.UserInfoEntity" id="userMap">
+	<resultMap type="com.lfs.dto.entity.UserInfoEntity" id="userMap">
 		<id property="id" column="id" />
 		<result property="loginName" column="login_name" />
 		<result property="passWord" column="pass_word" />
@@ -18,8 +18,8 @@
 	</resultMap>
 
 	<!-- 查询后台用户详情 -->
-	<select id="loginByPwd" parameterType="com.bc.admin.model.vo.UserInfoVO" resultMap="userMap">
-		select * from bc_system_user
+	<select id="loginByPwd" parameterType="com.lfs.admin.model.vo.UserInfoVO" resultMap="userMap">
+		select * from lfs_system_user
 		<where>
 			<if test="null != loginName and '' != loginName ">
 				and login_name = #{loginName}
@@ -30,10 +30,10 @@
 		</where>
 	</select>
 
-	<select id="getUserInfo" parameterType="com.bc.admin.model.vo.UserInfoVO" resultMap="userMap">
+	<select id="getUserInfo" parameterType="com.lfs.admin.model.vo.UserInfoVO" resultMap="userMap">
 		select id,login_name,role_id,nick_name,mobile,enabled_status,remark,
 		date_format(login_time,'%Y-%m-%d %T') login_time
-		from bc_system_user
+		from lfs_system_user
 		where 1=1
 		<if test="null != id and '' != id">
 			and id = #{id}
@@ -43,10 +43,10 @@
 		</if>
 	</select>
 	
-	<select id="getUserInfoList" parameterType="com.bc.admin.model.vo.UserInfoVO" resultMap="userMap">
+	<select id="getUserInfoList" parameterType="com.lfs.admin.model.vo.UserInfoVO" resultMap="userMap">
 		select id,login_name,role_id,nick_name,mobile,enabled_status,remark,
 		date_format(login_time,'%Y-%m-%d %T') login_time
-		from bc_system_user
+		from lfs_system_user
 		<where>
 			<if test="null != loginName and '' != loginName">
 				and login_name = #{loginName}
@@ -63,8 +63,8 @@
 		</where>
 	</select>
 
-	<update id="updateUserInfo" parameterType="com.bc.admin.model.vo.UserInfoVO">
-		update bc_system_user
+	<update id="updateUserInfo" parameterType="com.lfs.admin.model.vo.UserInfoVO">
+		update lfs_system_user
 		<set>
 			<if test="null != passWord and ''!=passWord">
 				pass_word = #{passWord},
@@ -87,12 +87,12 @@
 	</update>
 
 	<update id="updateLoginTime" parameterType="java.lang.Integer">
-		update bc_system_user set login_time = now()
+		update lfs_system_user set login_time = now()
 		where id = #{id}
 	</update>
 
-	<update id="resetPwd" parameterType="com.bc.admin.model.vo.UserInfoVO">
-		update bc_system_user set pass_word = #{passWord} where id = #{id}
+	<update id="resetPwd" parameterType="com.lfs.admin.model.vo.UserInfoVO">
+		update lfs_system_user set pass_word = #{passWord} where id = #{id}
 	</update>
 
 </mapper>

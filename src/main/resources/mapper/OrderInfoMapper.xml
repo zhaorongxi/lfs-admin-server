@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bc.admin.dao.OrderInfoDao">
+<mapper namespace="com.lfs.admin.dao.OrderInfoDao">
 
 	<!-- 查询订单详情（订单号,下游订单号,商户账号,金额,状态） -->
-	<select id="queryOrderInfo" parameterType="com.bc.interfaces.model.vo.OrderInfoVO" resultType="com.bc.admin.model.entity.OrderInfoEntity">
+	<select id="queryOrderInfo" parameterType="com.lfs.interfaces.model.vo.OrderInfoVO" resultType="com.lfs.admin.model.entity.OrderInfoEntity">
 		select o.id,o.agt_phone agtPhone,o.order_no orderNo,o.down_order_no reqStreamId,o.up_order_no upOrderNo,o.charge_addr chargeAddr,o.charge_money chargeMoney,
 		date_format(o.apply_time,'%Y-%m-%d %T') applyTime,date_format(o.check_time,'%Y-%m-%d %T') checkTime,o.qr_code qrCode,o.state,o.exp2 payAccount,
 		o.remark,o.error_code errorCode,o.channel_price channelPrice
-		from bc_order_charge o
+		from lfs_order_charge o
 		where 1=1
 		<if test="orderNo!=null and orderNo!=''">
 			and o.order_no = #{orderNo}
@@ -34,11 +34,11 @@
 	</select>
 
 	<!-- 查询订单详情（订单号,下游订单号,商户账号,金额,状态） -->
-	<select id="getOrderInfoByOrderNo" parameterType="com.bc.interfaces.model.vo.OrderInfoVO" resultType="java.util.Map">
+	<select id="getOrderInfoByOrderNo" parameterType="com.lfs.interfaces.model.vo.OrderInfoVO" resultType="java.util.Map">
 		select o.charge_addr accountNo,bbi.bank_account accountName,o.apply_time applyTime,
 		bbi.bank_name bankName,bbi.bank_mark bankMark
-		from bc_order_charge o
-		left join bc_bank_info bbi on o.charge_addr = bbi.card_no and bbi.status = 0
+		from lfs_order_charge o
+		left join lfs_bank_info bbi on o.charge_addr = bbi.card_no and bbi.status = 0
 		where 1=1
 		<if test="orderNo!=null and orderNo!=''">
 			and o.order_no = #{orderNo}
@@ -49,10 +49,10 @@
 	</select>
 
 	<!-- 查询支付二维码详情 -->
-	<select id="queryQrCodeInfo" parameterType="com.bc.interfaces.model.vo.OrderInfoVO" resultType="com.bc.admin.model.entity.OrderInfoEntity">
+	<select id="queryQrCodeInfo" parameterType="com.lfs.interfaces.model.vo.OrderInfoVO" resultType="com.lfs.admin.model.entity.OrderInfoEntity">
 		select o.id,o.order_no orderNo,o.down_order_no reqStreamId,o.up_order_no upOrderNo,o.charge_money chargeMoney,
 		date_format(o.apply_time,'%Y-%m-%d %T') applyTime,o.qr_code qrCode,o.state
-		from bc_order_charge o
+		from lfs_order_charge o
 		where 1=1
 		<if test="orderNo!=null and orderNo!=''">
 			and o.order_no = #{orderNo}
@@ -69,7 +69,7 @@
 
 
 	<select id="getOrderTradeList" parameterType="java.util.Map"
-			resultType="OrderTrade">
+			resultType="com.lfs.admin.model.report.OrderTrade">
 		SELECT
 		a.*,
 		d.agt_name agtName,
@@ -91,7 +91,7 @@
 		sum(case when e.state = 1 then e.price else 0 end) failTotalPrice,
 		count(case when e.state = 1 then 1 else null end) failTotal
 		FROM
-		bc_order_charge e,bc_product p
+		lfs_order_charge e,lfs_product p
 		WHERE e.product_code = p.product_num
 		<if test="null != startTime and  ''!= startTime">
 			<![CDATA[and apply_time  between #{startTime} and #{endTime} ]]>
@@ -108,7 +108,7 @@
 		GROUP BY
 		e.charge_addr,e.agt_phone,p.product_type
 		) a,
-		bc_agent d
+		lfs_agent d
 		WHERE
 		a.agtPhone = d.agt_phone
 		<if test="agtName!=null and agtName!=''">
@@ -117,7 +117,7 @@
 	</select>
 
 	<select id="getFinanceBillList" parameterType="java.util.Map"
-			resultType="OrderTrade">
+			resultType="com.lfs.admin.model.report.OrderTrade">
 		SELECT
 		a.*,
 		d.agt_name agtName,
@@ -137,7 +137,7 @@
 		sum(case when e.state = 0 then e.price else 0 end) succTotalPrice,
 		count(case when e.state = 0 then 1 else null end) succTotal
 		FROM
-		bc_order_charge e,bc_product p,bc_channel_info bci
+		lfs_order_charge e,lfs_product p,lfs_channel_info bci
 		WHERE
 		e.product_code = p.product_num
 		and e.state = 0 and bci.channel_num = e.up_chanel
@@ -147,7 +147,7 @@
 		GROUP BY
 		e.agt_phone,p.product_type,e.profit
 		) a,
-		bc_agent d
+		lfs_agent d
 		WHERE
 		a.agtPhone = d.agt_phone
 		<if test="agtName!=null and agtName!=''">
@@ -155,8 +155,8 @@
 		</if>
 	</select>
 
-	<select id="querySumAmount" parameterType="com.bc.interfaces.model.vo.OrderInfoVO" resultType="java.lang.Integer">
-		select sum(charge_money) from bc_order_charge
+	<select id="querySumAmount" parameterType="com.lfs.interfaces.model.vo.OrderInfoVO" resultType="java.lang.Integer">
+		select sum(charge_money) from lfs_order_charge
 		where charge_addr = #{chargeAddr}
 		<if test="null != startTime and  ''!= startTime">
 			<![CDATA[and apply_time  between #{startTime} and #{endTime} ]]>

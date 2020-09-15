@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bc.admin.dao.BankInfoDao">
+<mapper namespace="com.lfs.admin.dao.BankInfoDao">
 
 	<!--客户信息 -->
-	<resultMap type="com.bc.admin.model.entity.BankInfoEntity" id="agentMap">
+	<resultMap type="com.lfs.admin.model.entity.BankInfoEntity" id="agentMap">
 		<id property="id" column="id" />
 		<result property="agtPhone" column="agt_phone" />
 		<result property="actionType" column="action_type" />
@@ -19,10 +19,10 @@
 	</resultMap>
 
 	<!-- 查询银行账户列表详情 -->
-	<select id="queryBankList" parameterType="com.bc.admin.model.vo.BankInfoVO" resultType="com.bc.admin.model.entity.BankInfoEntity">
+	<select id="queryBankList" parameterType="com.lfs.admin.model.vo.BankInfoVO" resultType="com.lfs.admin.model.entity.BankInfoEntity">
 		select id,agt_phone agtPhone,action_type actionType,source_id sourceId,card_no cardNo,bank_account bankAccount,
 		bank_mark bankMark,bank_name bankName,status,bank_type bankType,date_format(create_time,'%Y-%m-%d %T') createTime
-		from bc_bank_info
+		from lfs_bank_info
 		where 1=1
 		<if test="agtPhone !=null and agtPhone!=''">
 			and agt_phone = #{agtPhone}
@@ -50,26 +50,26 @@
 	</select>
 
 	<!-- 查询客户列表下拉框 -->
-	<select id="querySelectList" parameterType="com.bc.admin.model.vo.BankInfoVO" resultType="com.bc.admin.model.entity.BankInfoEntity">
+	<select id="querySelectList" parameterType="com.lfs.admin.model.vo.BankInfoVO" resultType="com.lfs.admin.model.entity.BankInfoEntity">
 		select id,card_no cardNo,bank_account bankAccount
-		from bc_bank_info
+		from lfs_bank_info
 		order by create_time desc
 	</select>
 
-	<select id="getBankInfoById" parameterType="com.bc.admin.model.vo.BankInfoVO" resultType="com.bc.admin.model.entity.BankInfoEntity">
-		select agt_phone agtPhone,card_no cardNo,status from bc_bank_info where id = #{id}
+	<select id="getBankInfoById" parameterType="com.lfs.admin.model.vo.BankInfoVO" resultType="com.lfs.admin.model.entity.BankInfoEntity">
+		select agt_phone agtPhone,card_no cardNo,status from lfs_bank_info where id = #{id}
 	</select>
 
-	<select id="getBankInfoByAgtPhone" parameterType="com.bc.admin.model.vo.BankInfoVO" resultType="com.bc.admin.model.entity.BankInfoEntity">
-		select agt_phone agtPhone,card_no cardNo,status from bc_bank_info where card_no = #{cardNo} and agt_phone = #{agtPhone}
+	<select id="getBankInfoByAgtPhone" parameterType="com.lfs.admin.model.vo.BankInfoVO" resultType="com.lfs.admin.model.entity.BankInfoEntity">
+		select agt_phone agtPhone,card_no cardNo,status from lfs_bank_info where card_no = #{cardNo} and agt_phone = #{agtPhone}
 	</select>
 
-	<select id="getBankInfoByCardNo" parameterType="com.bc.admin.model.vo.BankInfoVO" resultType="java.lang.Integer">
-		select count(1) from bc_bank_info where card_no = #{cardNo} and bank_account = #{bankAccount} and status != 2
+	<select id="getBankInfoByCardNo" parameterType="com.lfs.admin.model.vo.BankInfoVO" resultType="java.lang.Integer">
+		select count(1) from lfs_bank_info where card_no = #{cardNo} and bank_account = #{bankAccount} and status != 2
 	</select>
 
-	<update id="updateBankInfo" parameterType="com.bc.admin.model.vo.BankInfoVO">
-		update bc_bank_info
+	<update id="updateBankInfo" parameterType="com.lfs.admin.model.vo.BankInfoVO">
+		update lfs_bank_info
 		<set>
 			<if test="null != agtPhone and '' != agtPhone">
 				agt_phone = #{agtPhone},
@@ -94,8 +94,8 @@
 		where id = #{id}
 	</update>
 
-	<insert id="addBankInfo" parameterType="com.bc.admin.model.vo.BankInfoVO">
-		insert into bc_bank_info
+	<insert id="addBankInfo" parameterType="com.lfs.admin.model.vo.BankInfoVO">
+		insert into lfs_bank_info
 		(agt_phone,action_type,source_id,card_no,bank_account,bank_name,bank_mark,bank_type,
 		create_time,update_time,status)
 		values
@@ -104,7 +104,7 @@
 	</insert>
 
 	<delete id="deleteBankInfo">
-		delete from bc_bank_info where id = #{id}
+		delete from lfs_bank_info where id = #{id}
 	</delete>
 
 </mapper>

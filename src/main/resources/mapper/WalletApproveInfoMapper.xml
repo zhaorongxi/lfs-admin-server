@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bc.admin.dao.WalletApproveInfoDao">
+<mapper namespace="com.lfs.admin.dao.WalletApproveInfoDao">
 
 	<!--客户信息 -->
-	<resultMap type="com.bc.admin.model.entity.WalletApproveInfoEntity" id="agentMap">
+	<resultMap type="com.lfs.admin.model.entity.WalletApproveInfoEntity" id="agentMap">
 		<id property="id" column="id" />
 		<result property="agtPhone" column="agt_phone" />
 		<result property="cashMoney" column="cash_money" />
@@ -17,13 +17,13 @@
 	</resultMap>
 
 	<!-- 查询提现申请记录列表详情 -->
-	<select id="queryWalletApproveList" parameterType="com.bc.admin.model.vo.WalletApproveInfoVO" resultType="com.bc.admin.model.entity.WalletApproveInfoEntity">
+	<select id="queryWalletApproveList" parameterType="com.lfs.admin.model.vo.WalletApproveInfoVO" resultType="com.lfs.admin.model.entity.WalletApproveInfoEntity">
 		select bwa.id,agt_phone agtPhone,bwa.cash_money cashMoney,
 		bsu.login_name operatorName,bwa.operator_id operatorId,bwa.remark,
 		date_format(bwa.check_time,'%Y-%m-%d %T') checkTime,
 		date_format(bwa.create_time,'%Y-%m-%d %T') createTime,
-		bwa.status from bc_wallet_approve bwa
-		left join bc_system_user bsu on bwa.operator_id = bsu.id
+		bwa.status from lfs_wallet_approve bwa
+		left join lfs_system_user bsu on bwa.operator_id = bsu.id
 		where 1=1
 		<if test="null != checkStartTime and  ''!= checkStartTime">
 			<![CDATA[and bwa.check_time  between #{checkStartTime} and #{checkEndTime} ]]>
@@ -40,8 +40,8 @@
 		order by bwa.create_time desc
 	</select>
 
-	<select id="getWalletApproveInfoById" parameterType="com.bc.admin.model.vo.WalletApproveInfoVO" resultType="com.bc.admin.model.entity.WalletApproveInfoEntity">
-		select id,agt_phone,status from bc_wallet_approve where id = #{id} for update
+	<select id="getWalletApproveInfoById" parameterType="com.lfs.admin.model.vo.WalletApproveInfoVO" resultType="com.lfs.admin.model.entity.WalletApproveInfoEntity">
+		select id,agt_phone,status from lfs_wallet_approve where id = #{id} for update
 	</select>
 
 	<!-- 修改保证金余额和佣金 -->
@@ -50,13 +50,13 @@
 		procedure_agt_wallet(#{chargeMoney,mode=IN,jdbcType=DECIMAL},#{agtPhone,mode=IN,jdbcType=VARCHAR},#{result,mode=OUT,jdbcType=INTEGER})};
 	</select>
 
-	<update id="updateWalletApprove" parameterType="com.bc.admin.model.vo.WalletApproveInfoVO">
-		update bc_wallet_approve set status = #{status},check_time = now(),operator_id = #{operatorId}
+	<update id="updateWalletApprove" parameterType="com.lfs.admin.model.vo.WalletApproveInfoVO">
+		update lfs_wallet_approve set status = #{status},check_time = now(),operator_id = #{operatorId}
 		where agt_phone = #{agtPhone} and id = #{id} and status = 0
 	</update>
 
-	<insert id="addWalletApprove" parameterType="com.bc.admin.model.vo.WalletApproveInfoVO">
-		insert into bc_wallet_approve (agt_phone,cash_money,status,operator_id,create_id,create_time,remark)
+	<insert id="addWalletApprove" parameterType="com.lfs.admin.model.vo.WalletApproveInfoVO">
+		insert into lfs_wallet_approve (agt_phone,cash_money,status,operator_id,create_id,create_time,remark)
 		values
 		(#{agtPhone},#{cashMoney},0,#{operatorId},#{createId},now(),#{remark})
 	</insert>

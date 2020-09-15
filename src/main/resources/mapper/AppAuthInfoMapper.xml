@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bc.admin.dao.AppAuthInfoDao">
+<mapper namespace="com.lfs.admin.dao.AppAuthInfoDao">
 
 	<!--收款账户信息 -->
-	<resultMap type="com.bc.admin.model.entity.AppAuthInfoEntity" id="appAuthMap">
+	<resultMap type="com.lfs.admin.model.entity.AppAuthInfoEntity" id="appAuthMap">
 		<id property="id" column="id" />
 		<result property="agtAppId" column="agt_app_id" />
 		<result property="agtAppAccount" column="agt_app_account" />
@@ -20,12 +20,12 @@
 	</resultMap>
 
 	<!-- 查询收款账户列表 -->
-	<select id="queryAppAuthList" parameterType="com.bc.admin.model.vo.AppAuthInfoVO" resultType="com.bc.admin.model.entity.AppAuthInfoEntity">
+	<select id="queryAppAuthList" parameterType="com.lfs.admin.model.vo.AppAuthInfoVO" resultType="com.lfs.admin.model.entity.AppAuthInfoEntity">
 		select baat.id,agt_app_id agtAppId,agt_app_account agtAppAccount,develop_app_id developAppId,bc.company_name companyName,
 		app_auth_code appAuthCode,app_auth_token appAuthToken, app_refresh_token appRefreshToken,
 		expires_in expiresIn,re_expires_in reExpiresIn,remark,state,date_format(baat.create_time,'%Y-%m-%d %T') createTime
-		from bc_app_auth_token baat
-		LEFT JOIN bc_company bc on baat.company_id = bc.id and bc.status = 0
+		from lfs_app_auth_token baat
+		LEFT JOIN lfs_company bc on baat.company_id = bc.id and bc.status = 0
 		where 1=1
 		<if test="agtAppId!=null and agtAppId!=''">
 			and agt_app_id = #{agtAppId}
@@ -48,8 +48,8 @@
 		order by baat.create_time desc
 	</select>
 
-	<update id="updateAppAuthInfo" parameterType="com.bc.admin.model.vo.AppAuthInfoVO">
-		update bc_app_auth_token set
+	<update id="updateAppAuthInfo" parameterType="com.lfs.admin.model.vo.AppAuthInfoVO">
+		update lfs_app_auth_token set
 		<if test="null != agtAppId and '' != agtAppId">
 			agt_app_id = #{agtAppId},
 		</if>
@@ -74,8 +74,8 @@
 		update_time = now() where id = #{id}
 	</update>
 
-	<insert id="addAppAuthInfo" parameterType="com.bc.admin.model.vo.AppAuthInfoVO">
-		insert into bc_app_auth_token (agt_app_id,agt_app_account,app_auth_token,develop_app_id,
+	<insert id="addAppAuthInfo" parameterType="com.lfs.admin.model.vo.AppAuthInfoVO">
+		insert into lfs_app_auth_token (agt_app_id,agt_app_account,app_auth_token,develop_app_id,
 		company_id,account_type,state,create_time,remark)
 		values (#{agtAppId},#{agtAppAccount},#{appAuthToken},#{developAppId},#{state},
 		#{companyId},#{accountType},now(),#{remark})

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bc.admin.dao.ChannelInfoDao">
+<mapper namespace="com.lfs.admin.dao.ChannelInfoDao">
 
 	<!--客户信息 -->
-	<resultMap type="com.bc.admin.model.entity.ChannelInfoEntity" id="channelMap">
+	<resultMap type="com.lfs.admin.model.entity.ChannelInfoEntity" id="channelMap">
 		<id column="channel_num" property="channelNum" jdbcType="VARCHAR" />
 		<result column="channel_name" property="channelName" jdbcType="VARCHAR" />
 		<result column="adapter_name" property="adapterName" jdbcType="VARCHAR" />
@@ -23,18 +23,18 @@
 	<!-- 根据上游供应商编码查询上游供应商 -->
 	<select id="selectByPrimaryKey" resultMap="channelMap"
 			parameterType="java.lang.String">
-		select * from bc_channel_info where channel_num =
+		select * from lfs_channel_info where channel_num =
 		#{channelNum,jdbcType=VARCHAR}
 	</select>
 
 	<!-- 查询上游供应商下拉框 -->
-	<select id="querySelectList" resultType="java.util.Map" parameterType="com.bc.admin.model.vo.ChannelVO">
-		select channel_num channelNum,channel_name channelName from bc_channel_info where channel_st = 1
+	<select id="querySelectList" resultType="java.util.Map" parameterType="com.lfs.admin.model.vo.ChannelVO">
+		select channel_num channelNum,channel_name channelName from lfs_channel_info where channel_st = 1
 	</select>
 
 	<!-- 查询上游供应商列表集合-->
-	<select id="queryChannelInfoList" resultMap="channelMap" parameterType="com.bc.admin.model.vo.ChannelVO">
-		select * from bc_channel_info where 1=1
+	<select id="queryChannelInfoList" resultMap="channelMap" parameterType="com.lfs.admin.model.vo.ChannelVO">
+		select * from lfs_channel_info where 1=1
 		<if test="null != channelNum and '' != channelNum">
 			and channel_num = #{channelNum}
 		</if>

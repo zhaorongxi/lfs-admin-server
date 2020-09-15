@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bc.admin.dao.NotifyInfoDao">
+<mapper namespace="com.lfs.admin.dao.NotifyInfoDao">
 
 	<!--回调信息 -->
-	<resultMap type="com.bc.admin.model.entity.NotifyInfoEntity" id="notifyMap">
+	<resultMap type="com.lfs.admin.model.entity.NotifyInfoEntity" id="notifyMap">
 		<id property="id" column="id" />
 		<result property="agtPhone" column="agt_phone" />
 		<result property="chargeMoney" column="charge_money" />
@@ -18,13 +18,13 @@
 	</resultMap>
 
 	<!-- 查询回调列表详情 -->
-	<select id="queryNotifyList" parameterType="com.bc.admin.model.vo.NotifyInfoVO" resultType="com.bc.admin.model.entity.NotifyInfoEntity">
+	<select id="queryNotifyList" parameterType="com.lfs.admin.model.vo.NotifyInfoVO" resultType="com.lfs.admin.model.entity.NotifyInfoEntity">
 		select DISTINCT bon.id,bon.agt_phone agtPhone,bon.charge_money chargeMoney,bon.req_stream_id reqStreamId,
 		bon.order_no orderNo,CONCAT(bbi.bank_account,'|',bbi.bank_name,'|',RIGHT(bon.charge_addr,4)) chargeAddr,
 		bon.notify_url notifyUrl,bon.count,flag,bon.state,bon.pay_account_name payAccountName,bon.price,bon.profit,
 		date_format(bon.apply_time,'%Y-%m-%d %T') applyTime
-		from bc_order_nofity bon
-		left join bc_bank_info bbi on bbi.card_no = bon.charge_addr
+		from lfs_order_nofity bon
+		left join lfs_bank_info bbi on bbi.card_no = bon.charge_addr
 		where 1=1
 		<if test="agtPhone !=null and agtPhone!=''">
 			and bon.agt_phone = #{agtPhone}
@@ -61,14 +61,14 @@
 		order by bon.apply_time desc
 	</select>
 
-	<select id="querySumAmount" parameterType="com.bc.admin.model.vo.NotifyInfoVO" resultType="java.util.HashMap">
+	<select id="querySumAmount" parameterType="com.lfs.admin.model.vo.NotifyInfoVO" resultType="java.util.HashMap">
 		select count(1) sumCount,
 		sum(bon.charge_money) sumAount,
 		(sum(bon.charge_money) * ifnull(profit,0)) inProfitMoney,
 		sum(bon.charge_money) - (sum(bon.charge_money) * ifnull(profit,0)) agtProfitMoney,
 		bon.charge_addr accountNo,bbi.bank_name bankName,bon.profit,
 		bbi.bank_account accountName
-		from bc_order_nofity bon left join bc_bank_info bbi
+		from lfs_order_nofity bon left join lfs_bank_info bbi
 		on bon.agt_phone = bbi.agt_phone and bbi.card_no = bon.charge_addr
 		where bon.flag != 5
 		<if test="null != startTime and  ''!= startTime">
@@ -80,12 +80,12 @@
 		group by bon.charge_addr
 	</select>
 
-	<select id="queryAgentSumAmount" parameterType="com.bc.admin.model.vo.NotifyInfoVO" resultType="java.util.HashMap">
+	<select id="queryAgentSumAmount" parameterType="com.lfs.admin.model.vo.NotifyInfoVO" resultType="java.util.HashMap">
 		select count(1) sumCount,bon.profit,
 		sum(bon.charge_money) sumAount,
 		(sum(bon.charge_money) * ifnull(profit,0)) inProfitMoney,
 		sum(bon.charge_money) - (sum(bon.charge_money) * ifnull(profit,0)) agtProfitMoney
-		from bc_order_nofity bon
+		from lfs_order_nofity bon
 		where bon.flag != 5
 		<if test="null != startTime and  ''!= startTime">
 			<![CDATA[and bon.apply_time  between #{startTime} and #{endTime} ]]>
@@ -95,8 +95,8 @@
 		</if>
 	</select>
 
-	<update id="updateNotifyInfo" parameterType="com.bc.admin.model.vo.NotifyInfoVO">
-		update bc_order_nofity
+	<update id="updateNotifyInfo" parameterType="com.lfs.admin.model.vo.NotifyInfoVO">
+		update lfs_order_nofity
 		<set>
 			<if test="null != flag and flag != -1">
 				flag = #{flag},
@@ -114,7 +114,7 @@
 		</if>
 	</update>
 
-	<update id="updateOrderInfo" parameterType="com.bc.admin.model.vo.NotifyInfoVO">
-		update bc_order_charge set exp2 = #{payAccountName} where order_no = #{orderNo}
+	<update id="updateOrderInfo" parameterType="com.lfs.admin.model.vo.NotifyInfoVO">
+		update lfs_order_charge set exp2 = #{payAccountName} where order_no = #{orderNo}
 	</update>
 </mapper>

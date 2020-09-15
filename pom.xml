@@ -3,14 +3,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>bc-framework</artifactId>
-        <groupId>com.bc.framework</groupId>
+        <artifactId>lfs-framework</artifactId>
+        <groupId>com.lfs.framework</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>com.bc.admin</groupId>
-    <artifactId>bc-admin</artifactId>
+    <groupId>com.lfs.admin</groupId>
+    <artifactId>lfs-admin</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>bc-admin</name>
+    <name>lfs-admin</name>
     <description>后台管理</description>
 
     <properties>
@@ -19,29 +19,29 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.bc.framework</groupId>
-            <artifactId>bc-base</artifactId>
+            <groupId>com.lfs.framework</groupId>
+            <artifactId>lfs-base</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.bc.framework</groupId>
-            <artifactId>bc-annotation</artifactId>
+            <groupId>com.lfs.framework</groupId>
+            <artifactId>lfs-annotation</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.bc.framework</groupId>
-            <artifactId>bc-dao</artifactId>
+            <groupId>com.lfs.framework</groupId>
+            <artifactId>lfs-dao</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>com.bc.framework</groupId>
-            <artifactId>bc-http</artifactId>
+            <groupId>com.lfs.framework</groupId>
+            <artifactId>lfs-http</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.bc.framework</groupId>
-            <artifactId>bc-interfaces</artifactId>
+            <groupId>com.lfs.framework</groupId>
+            <artifactId>lfs-interfaces</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 

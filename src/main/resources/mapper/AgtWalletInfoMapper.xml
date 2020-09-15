@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bc.admin.dao.AgtWalletInfoDao">
+<mapper namespace="com.lfs.admin.dao.AgtWalletInfoDao">
 
 	<!--客户信息 -->
-	<resultMap type="com.bc.admin.model.entity.AgtWalletInfoEntity" id="agtWalletMap">
+	<resultMap type="com.lfs.admin.model.entity.AgtWalletInfoEntity" id="agtWalletMap">
 		<id property="id" column="id" />
 		<result property="agtPhone" column="agt_phone" />
 		<result property="credit" column="credit" />
@@ -14,10 +14,10 @@
 	</resultMap>
 
 	<!-- 查询商户钱包余额 -->
-	<select id="queryAgtWallet" parameterType="com.bc.admin.model.vo.AgtWalletInfoVO" resultType="com.bc.admin.model.entity.AgtWalletInfoEntity">
+	<select id="queryAgtWallet" parameterType="com.lfs.admin.model.vo.AgtWalletInfoVO" resultType="com.lfs.admin.model.entity.AgtWalletInfoEntity">
 		select baw.id,baw.agt_phone agtPhone,baw.freeze,baw.credit,last_time lastTime ,sum(bwa.cash_money) sumCashMoney
-		from bc_agt_wallet baw
-		left join bc_wallet_approve bwa on baw.agt_phone = bwa.agt_phone and bwa.status = 2
+		from lfs_agt_wallet baw
+		left join lfs_wallet_approve bwa on baw.agt_phone = bwa.agt_phone and bwa.status = 2
 		where 1=1
 		<if test="null != agtPhone and '' != agtPhone">
 			and baw.agt_phone = #{agtPhone}

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bc.admin.dao.CompanyInfoDao">
+<mapper namespace="com.lfs.admin.dao.CompanyInfoDao">
 
 	<!--公司信息 -->
-	<resultMap type="com.bc.admin.model.entity.CompanyInfoEntity" id="companyMap">
+	<resultMap type="com.lfs.admin.model.entity.CompanyInfoEntity" id="companyMap">
 		<id property="id" column="id" />
 		<result property="companyName" column="company_name" />
 		<result property="payAmountDay" column="pay_amount_day" />
@@ -13,8 +13,8 @@
 	</resultMap>
 
 	<!-- 查询公司列表 -->
-	<select id="queryCompanyList" parameterType="com.bc.admin.model.vo.CompanyInfoVO" resultMap="companyMap">
-		select * from bc_company
+	<select id="queryCompanyList" parameterType="com.lfs.admin.model.vo.CompanyInfoVO" resultMap="companyMap">
+		select * from lfs_company
 		where 1=1
 		<if test="companyName!=null and companyName!=''">
 			and company_name = #{companyName}
@@ -25,12 +25,12 @@
 		order by create_time desc
 	</select>
 
-	<select id="querySelectList" resultType="java.util.Map" parameterType="com.bc.admin.model.vo.CompanyInfoVO" >
-		select id commpany_name companyName from bc_company
+	<select id="querySelectList" resultType="java.util.Map" parameterType="com.lfs.admin.model.vo.CompanyInfoVO" >
+		select id commpany_name companyName from lfs_company
 	</select>
 
-	<update id="updateCompanyInfo" parameterType="com.bc.admin.model.vo.CompanyInfoVO">
-		update bc_company
+	<update id="updateCompanyInfo" parameterType="com.lfs.admin.model.vo.CompanyInfoVO">
+		update lfs_company
 		<set>
 			<if test="null != companyName and '' != companyName">
 				company_name = #{companyName},
@@ -46,8 +46,8 @@
 		 where id = #{id}
 	</update>
 
-	<insert id="addCompanyInfo" parameterType="com.bc.admin.model.vo.CompanyInfoVO">
-		insert into bc_company (company_name,pay_amount_day,status,create_time,update_time)
+	<insert id="addCompanyInfo" parameterType="com.lfs.admin.model.vo.CompanyInfoVO">
+		insert into lfs_company (company_name,pay_amount_day,status,create_time,update_time)
 		values (#{companyName},#{payAmountDay},0 ,now(),now())
 	</insert>
 

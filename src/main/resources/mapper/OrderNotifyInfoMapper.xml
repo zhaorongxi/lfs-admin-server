@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bc.admin.dao.OrderNotifyInfoDao">
+<mapper namespace="com.lfs.admin.dao.OrderNotifyInfoDao">
 
 	<!-- 查询回调订单详情（下游订单号,回调状态,订单状态） -->
-	<select id="queryNotifyOrderInfo" parameterType="com.bc.admin.model.vo.OrderNotifyInfoVO" resultType="com.bc.admin.model.entity.OrderNotifyInfoEntity">
+	<select id="queryNotifyOrderInfo" parameterType="com.lfs.admin.model.vo.OrderNotifyInfoVO" resultType="com.lfs.admin.model.entity.OrderNotifyInfoEntity">
 		select o.id,o.agt_phone agtPhone,o.req_stream_id reqStreamId,
 		date_format(o.apply_time,'%Y-%m-%d %T') applyTime,o.notify_url notifyUrl,o.state,o.flag
-		from bc_order_nofity o
+		from lfs_order_nofity o
 		where 1=1
 		<if test="agtPhone!=null and agtPhone!=''">
 			and o.agt_phone =#{agtPhone}

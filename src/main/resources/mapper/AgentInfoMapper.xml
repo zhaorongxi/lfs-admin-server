@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bc.admin.dao.AgentInfoDao">
+<mapper namespace="com.lfs.admin.dao.AgentInfoDao">
 
 	<!--客户信息 -->
-	<resultMap type="com.bc.admin.model.entity.AgentInfoEntity" id="agentMap">
+	<resultMap type="com.lfs.admin.model.entity.AgentInfoEntity" id="agentMap">
 		<id property="id" column="id" />
 		<result property="agtName" column="agt_name" />
 		<result property="applyTime" column="apply_time" />
@@ -22,10 +22,10 @@
 	</resultMap>
 
 	<!-- 查询客户列表详情 -->
-	<select id="queryAgentList" parameterType="com.bc.admin.model.vo.AgentInfoVO" resultType="com.bc.admin.model.entity.AgentInfoEntity">
+	<select id="queryAgentList" parameterType="com.lfs.admin.model.vo.AgentInfoVO" resultType="com.lfs.admin.model.entity.AgentInfoEntity">
 		select id,agt_no agtNo,agt_phone agtPhone,agt_name agtName,link_name linkName,
 		date_format(apply_time,'%Y-%m-%d %T') applyTime,agt_type agtType,
-		agt_office_addr agtOfficeAddr, link_mobile linkMobile,state from bc_agent
+		agt_office_addr agtOfficeAddr, link_mobile linkMobile,state from lfs_agent
 		where 1=1
 		<if test="agtName!=null and agtName!=''">
 			and agt_name = #{agtName}
@@ -46,9 +46,9 @@
 	</select>
 
 	<!-- 查询客户列表下拉框 -->
-	<select id="querySelectList" parameterType="com.bc.admin.model.vo.AgentInfoVO" resultType="com.bc.admin.model.entity.AgentInfoEntity">
+	<select id="querySelectList" parameterType="com.lfs.admin.model.vo.AgentInfoVO" resultType="com.lfs.admin.model.entity.AgentInfoEntity">
 		select id,agt_phone agtPhone,agt_name agtName,link_name linkName,state
-		from bc_agent
+		from lfs_agent
 		where 1=1
 		<if test="null != agtType and -1 != agtType">
 			and agt_type = #{agtType}
@@ -56,10 +56,10 @@
 		order by apply_time desc
 	</select>
 
-	<select id="queryAgtAccessList" resultType="com.bc.admin.model.entity.AgtAccessEntity" parameterType="com.bc.admin.model.vo.AgentInfoVO" >
+	<select id="queryAgtAccessList" resultType="com.lfs.admin.model.entity.AgtAccessEntity" parameterType="com.lfs.admin.model.vo.AgentInfoVO" >
 		select c.id, c.agt_no agtNo,c.app_id appId,c.app_key
 		appKey,a.agt_phone,a.agt_name,app_type appTyppe
-		from bc_agtaccess c,bc_agent a
+		from lfs_agtaccess c,lfs_agent a
 		where c.agt_no =  a.agt_no
 		<if test="agtPhone!=null and agtPhone!=''">
 			and a.agt_phone = #{agtPhone}
@@ -69,8 +69,8 @@
 		</if>
 	</select>
 
-	<update id="updateAgentInfo" parameterType="com.bc.admin.model.vo.AgentInfoVO">
-		update bc_agent
+	<update id="updateAgentInfo" parameterType="com.lfs.admin.model.vo.AgentInfoVO">
+		update lfs_agent
 		<set>
 			<if test="null != agtName and '' != agtName">
 				agt_name = #{agtName},
@@ -95,17 +95,17 @@
 		where id = #{id}
 	</update>
 
-	<update id="refreshAppKey" parameterType="com.bc.interfaces.model.vo.AgtAccessVo">
-		update bc_agtaccess set app_id = #{appId},app_key = #{appKey},app_type = #{appType}
+	<update id="refreshAppKey" parameterType="com.lfs.interfaces.model.vo.AgtAccessVo">
+		update lfs_agtaccess set app_id = #{appId},app_key = #{appKey},app_type = #{appType}
 		where agt_no = #{agtNo}
 	</update>
 
-	<select id="getAgtAccessInfo" parameterType="com.bc.interfaces.model.vo.AgtAccessVo" resultType="com.bc.interfaces.model.AgtAccess">
-		select app_id appId,app_key appKey,app_type appType,agt_no agtNo from bc_agtaccess where agt_no = #{agtNo}
+	<select id="getAgtAccessInfo" parameterType="com.lfs.interfaces.model.vo.AgtAccessVo" resultType="com.lfs.interfaces.model.AgtAccess">
+		select app_id appId,app_key appKey,app_type appType,agt_no agtNo from lfs_agtaccess where agt_no = #{agtNo}
 	</select>
 
-	<insert id="addAgentInfo" parameterType="com.bc.admin.model.vo.AgentInfoVO">
-		insert into bc_agent
+	<insert id="addAgentInfo" parameterType="com.lfs.admin.model.vo.AgentInfoVO">
+		insert into lfs_agent
 		(agt_name,apply_time,agt_phone,agt_no,saler,parent_id,agt_office_addr,link_name,link_mobile,
 		remark,agt_type,id_card,update_time,state)
 		values
@@ -114,17 +114,17 @@
 	</insert>
 
 	<!-- 新增代理钱包余额 -->
-	<insert id="insertAgtWallet" parameterType="com.bc.interfaces.model.AgtWallet">
+	<insert id="insertAgtWallet" parameterType="com.lfs.interfaces.model.AgtWallet">
 		insert into
-		bc_agt_wallet
+		lfs_agt_wallet
 		(agt_phone, credit, profit, freeze, last_time)
 		values
 		(#{agtPhone}, 0, 0, 0, now())
 	</insert>
 
-	<insert id="insertAgtAccess" parameterType="com.bc.interfaces.model.AgtAccess">
+	<insert id="insertAgtAccess" parameterType="com.lfs.interfaces.model.AgtAccess">
 		insert into
-		bc_agtaccess
+		lfs_agtaccess
 		(agt_no,app_id,app_key,app_type)
 		values
 		(#{agtNo},#{appId},#{appKey},#{appType})
@@ -133,14 +133,14 @@
 	<!-- 插入代理商安全相关 -->
 	<insert id="insertAgtSecurity" parameterType="AgtSecurity">
 		insert into
-		bc_agtsecurity
+		lfs_agtsecurity
 		(agt_no,login_pwd,trade_pwd,screen_switch)
 		values
 		(#{agtNo},#{loginPwd},#{tradePwd},0)
 	</insert>
 	
 	<delete id="deleteAgentInfo">
-		delete from bc_agent where id = #{id}
+		delete from lfs_agent where id = #{id}
 	</delete>
 
 </mapper>
