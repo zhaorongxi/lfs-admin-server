@@ -2,7 +2,7 @@ package com.lfs.admin.service.impl;
 
 import com.lfs.admin.dao.UserInfoDao;
 import com.lfs.admin.model.vo.UserInfoVO;
-import com.lfs.admin.service.TokenService;
+import com.lfs.admin.service.OldTokenService;
 import com.lfs.admin.service.UserInfoService;
 import com.lfs.base.enums.ErrorCodeEnum;
 import com.lfs.base.enums.ReturnCodeEnum;
@@ -10,15 +10,15 @@ import com.lfs.base.exception.BusinessException;
 import com.lfs.base.exception.ServiceException;
 import com.lfs.base.util.MD5Utils;
 import com.lfs.base.util.StringUtils;
-import com.lfs.cache.redis.RedisBase;
-import com.lfs.cache.redis.base.CommonCache;
-import com.lfs.cache.redis.base.StringCache;
+import com.lfs.common.cache.redis.RedisBase;
+import com.lfs.common.cache.redis.base.CommonCache;
+import com.lfs.common.cache.redis.base.StringCache;
+import com.lfs.common.constant.Constant;
+import com.lfs.common.constant.RedisConstants;
+import com.lfs.common.constant.ShareConstants;
 import com.lfs.dao.entity.PageBean;
 import com.lfs.dao.service.SystemService;
 import com.lfs.dto.entity.UserInfoEntity;
-import com.lfs.interfaces.common.Constants;
-import com.lfs.interfaces.common.RedisConstants;
-import com.lfs.interfaces.common.ShareConstants;
 import com.lfs.interfaces.model.dto.TokenDateModelDTO;
 import com.github.pagehelper.PageHelper;
 import com.google.code.kaptcha.Producer;
@@ -32,6 +32,7 @@ import javax.annotation.Resource;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -48,7 +49,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     private UserInfoDao userInfoDao;
 
     @Autowired
-    private TokenService tokenService;
+    private OldTokenService tokenService;
 
     @Autowired
     private CommonCache commonCache;
@@ -78,7 +79,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 stringCache.incr(RedisConstants.LOCK_USER_COUNT + userAccount,1L);
                 logger.info("userAccount:{}",userAccount,"账号或密码不正确,登录失败! ");
                 throw new ServiceException(ReturnCodeEnum.LOGIN_FAIL.getCode(), ReturnCodeEnum.LOGIN_FAIL.getMsg());
-            }else if(user.getEnabledStatus().equals(Constants.USER_UNENABLE_STATUE)){
+            }else if(user.getEnabledStatus().equals(Constant.USER_UNENABLE_STATUE)){
                 logger.info("userAccount:{}",userAccount,"账号已被禁用,请联系管理员启用! ");
                 throw new ServiceException(ErrorCodeEnum.ACCOUNT_ERROR.getCode(), ErrorCodeEnum.ACCOUNT_ERROR.getMsg());
             }else{
@@ -181,7 +182,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         String verifyCode = producer.createText();
 
         //2. 设置60秒后过期
-        stringCache.set(RedisConstants.SEND_VERIFY_CODE + uuid, verifyCode,ShareConstants.VERIFY_CODE_EXPIRE);
+        stringCache.set(RedisConstants.SEND_VERIFY_CODE + uuid, verifyCode, ShareConstants.VERIFY_CODE_EXPIRE);
 
         return producer.createImage(verifyCode);
     }

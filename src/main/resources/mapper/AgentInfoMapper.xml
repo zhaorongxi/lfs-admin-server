@@ -131,7 +131,7 @@
 	</insert>
 
 	<!-- 插入代理商安全相关 -->
-	<insert id="insertAgtSecurity" parameterType="AgtSecurity">
+	<insert id="insertAgtSecurity" parameterType="com.lfs.interfaces.model.AgtSecurity">
 		insert into
 		lfs_agtsecurity
 		(agt_no,login_pwd,trade_pwd,screen_switch)

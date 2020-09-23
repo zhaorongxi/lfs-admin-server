@@ -1,13 +1,13 @@
 package com.lfs.admin.service.impl;
 
-import com.lfs.admin.service.TokenService;
+import com.lfs.admin.service.OldTokenService;
 import com.lfs.admin.util.JwtTokenUtils;
 import com.lfs.admin.util.LocalDateUtil;
 import com.lfs.base.dto.Result;
 import com.lfs.base.enums.EntranceEnums;
-import com.lfs.cache.redis.RedisBase;
-import com.lfs.interfaces.common.RedisConstants;
-import com.lfs.interfaces.common.ShareConstants;
+import com.lfs.common.cache.redis.RedisBase;
+import com.lfs.common.constant.RedisConstants;
+import com.lfs.common.constant.ShareConstants;
 import com.lfs.interfaces.model.dto.TokenDateModelDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +27,11 @@ import java.util.concurrent.TimeUnit;
  * @date: 2019-02-21 18:42
  */
 @Service
-public class TokenServiceImpl implements TokenService {
+public class OldTokenServiceImpl implements OldTokenService {
     @Autowired
    private JwtTokenUtils jwtTokenUtils;
 
-    private final Logger logger = LoggerFactory.getLogger(TokenServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(OldTokenServiceImpl.class);
 
     @Override
     public String bulidUserToken(Integer userId) {

@@ -13,7 +13,7 @@ import com.lfs.base.dto.Result;
  * @author: Dylan
  * @date: 2019-02-21 18:41
  */
-public interface TokenService {
+public interface OldTokenService {
 
     /**
      * 新建用户Token

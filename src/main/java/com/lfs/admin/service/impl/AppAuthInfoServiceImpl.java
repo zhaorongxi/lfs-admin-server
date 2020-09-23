@@ -6,7 +6,7 @@ import com.lfs.admin.model.vo.AppAuthInfoVO;
 import com.lfs.admin.service.AppAuthInfoService;
 import com.lfs.base.enums.ErrorCodeEnum;
 import com.lfs.base.exception.ServiceException;
-import com.lfs.interfaces.common.CommonConstants;
+import com.lfs.common.constant.CommonConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
