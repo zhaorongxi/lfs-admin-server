@@ -26,12 +26,15 @@
 		select id,agt_no agtNo,agt_phone agtPhone,agt_name agtName,link_name linkName,
 		date_format(apply_time,'%Y-%m-%d %T') applyTime,agt_type agtType,
 		agt_office_addr agtOfficeAddr, link_mobile linkMobile,state from lfs_agent
-		where 1=1
+		where del_flag = 0
 		<if test="agtName!=null and agtName!=''">
 			and agt_name = #{agtName}
 		</if>
-		<if test="null != startTime and  ''!= startTime">
-			<![CDATA[and apply_time  between #{startTime} and #{endTime} ]]>
+		<if test="beginTime != null and beginTime != ''"><!-- 开始时间检索 -->
+			and date_format(apply_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+		</if>
+		<if test="endTime != null and endTime != ''"><!-- 结束时间检索 -->
+			and date_format(apply_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
 		</if>
 		<if test="agtPhone!=null and agtPhone!=''">
 			and agt_phone =#{agtPhone}
@@ -43,6 +46,14 @@
 			and agt_type =#{agtType}
 		</if>
 		order by apply_time desc
+	</select>
+
+	<select id="getAgentInfo" parameterType="java.lang.Integer" resultType="com.lfs.admin.model.entity.AgentInfoEntity">
+		select id,agt_no agtNo,agt_phone agtPhone,agt_name agtName,link_name linkName,
+		date_format(apply_time,'%Y-%m-%d %T') applyTime,agt_type agtType,
+		agt_office_addr agtOfficeAddr, link_mobile linkMobile,link_email linkEmail,state
+		from lfs_agent
+		where id = #{id}
 	</select>
 
 	<!-- 查询客户列表下拉框 -->
@@ -58,7 +69,7 @@
 
 	<select id="queryAgtAccessList" resultType="com.lfs.admin.model.entity.AgtAccessEntity" parameterType="com.lfs.admin.model.vo.AgentInfoVO" >
 		select c.id, c.agt_no agtNo,c.app_id appId,c.app_key
-		appKey,a.agt_phone,a.agt_name,app_type appTyppe
+		appKey,a.agt_phone agtPhone,a.agt_name agtName,app_type appTyppe
 		from lfs_agtaccess c,lfs_agent a
 		where c.agt_no =  a.agt_no
 		<if test="agtPhone!=null and agtPhone!=''">
@@ -67,6 +78,18 @@
 		<if test="agtName!=null and agtName!=''">
 			and a.agt_name like CONCAT('%',#{agtName},'%')
 		</if>
+	</select>
+
+	<select id="checkPhoneUnique" parameterType="String" resultMap="agentMap">
+		select id, link_mobile from lfs_agent where link_mobile = #{linkMobile} limit 1
+	</select>
+
+	<select id="checkEmailUnique" parameterType="String" resultMap="agentMap">
+		select id, link_email from lfs_agent where link_email = #{linkEmail} limit 1
+	</select>
+
+	<select id="checkAgtNameUnique" parameterType="String" resultMap="agentMap">
+		select id, agt_name from lfs_agent where agt_name = #{agtName} limit 1
 	</select>
 
 	<update id="updateAgentInfo" parameterType="com.lfs.admin.model.vo.AgentInfoVO">
@@ -87,6 +110,12 @@
 			<if test="null != remark">
 				remark = #{remark},
 			</if>
+			<if test="null != linkMobile">
+				link_mobile = #{linkMobile},
+			</if>
+			<if test="null != linkEmail">
+				link_email = #{linkEmail},
+			</if>
 			<if test="null != agtOfficeAddr">
 				agt_office_addr = #{agtOfficeAddr},
 			</if>
@@ -96,8 +125,11 @@
 	</update>
 
 	<update id="refreshAppKey" parameterType="com.lfs.interfaces.model.vo.AgtAccessVo">
-		update lfs_agtaccess set app_id = #{appId},app_key = #{appKey},app_type = #{appType}
-		where agt_no = #{agtNo}
+		update lfs_agtaccess set app_key = #{appKey} where agt_no = #{agtNo}
+	</update>
+
+	<update id="updateAgentStatus" parameterType="com.lfs.admin.model.vo.AgentInfoVO">
+		update lfs_agent set state = #{state} where id = #{id}
 	</update>
 
 	<select id="getAgtAccessInfo" parameterType="com.lfs.interfaces.model.vo.AgtAccessVo" resultType="com.lfs.interfaces.model.AgtAccess">
@@ -106,11 +138,11 @@
 
 	<insert id="addAgentInfo" parameterType="com.lfs.admin.model.vo.AgentInfoVO">
 		insert into lfs_agent
-		(agt_name,apply_time,agt_phone,agt_no,saler,parent_id,agt_office_addr,link_name,link_mobile,
-		remark,agt_type,id_card,update_time,state)
+		(agt_name,apply_time,agt_phone,agt_no,saler,parent_id,agt_office_addr,link_name,link_mobile,link_email,
+		remark,agt_type,id_card,update_time,state,del_flag)
 		values
 		(#{agtName},now(),#{agtPhone},#{agtNo},#{saler},#{parentId},#{agtOfficeAddr},
-		#{linkName},#{linkMobile},#{remark},#{agtType},#{idCard},now(),0)
+		#{linkName},#{linkMobile},#{linkEmail},#{remark},#{agtType},#{idCard},now(),0,0)
 	</insert>
 
 	<!-- 新增代理钱包余额 -->
@@ -139,8 +171,11 @@
 		(#{agtNo},#{loginPwd},#{tradePwd},0)
 	</insert>
 	
-	<delete id="deleteAgentInfo">
-		delete from lfs_agent where id = #{id}
+	<delete id="deleteAgentInfo" parameterType="java.lang.Integer">
+		update lfs_agent set del_flag = '2' where id in
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
 	</delete>
 
 </mapper>

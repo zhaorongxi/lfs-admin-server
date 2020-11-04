@@ -1,8 +1,10 @@
 package com.lfs.admin.model.vo;
 
+import com.lfs.common.core.domain.BaseEntity;
+
 import java.io.Serializable;
 
-public class AgentInfoVO implements Serializable {
+public class AgentInfoVO extends BaseEntity implements Serializable {
     private static final long serialVersionUID = -561107906499578686L;
 
     private Integer id;
@@ -12,10 +14,6 @@ public class AgentInfoVO implements Serializable {
     private String agtPhone;
 
     private String agtNo;
-
-    private String startTime;
-
-    private String endTime;
 
     private Integer state;
 
@@ -33,13 +31,11 @@ public class AgentInfoVO implements Serializable {
 
     private String linkMobile;
 
+    private String linkEmail;
+
     private String remark;
 
     private String idCard;
-
-    private Integer currentPage;
-
-    private Integer pageSize;
 
     public Integer getId() {
         return id;
@@ -65,22 +61,6 @@ public class AgentInfoVO implements Serializable {
         this.agtNo = agtNo;
     }
 
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-
     public Integer getState() {
         return state;
     }
@@ -95,22 +75,6 @@ public class AgentInfoVO implements Serializable {
 
     public void setAgtPhone(String agtPhone) {
         this.agtPhone = agtPhone;
-    }
-
-    public Integer getCurrentPage() {
-        return currentPage;
-    }
-
-    public void setCurrentPage(Integer currentPage) {
-        this.currentPage = currentPage;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
     }
 
     public Integer getAgtType() {
@@ -185,6 +149,14 @@ public class AgentInfoVO implements Serializable {
         this.secretType = secretType;
     }
 
+    public String getLinkEmail() {
+        return linkEmail;
+    }
+
+    public void setLinkEmail(String linkEmail) {
+        this.linkEmail = linkEmail;
+    }
+
     @Override
     public String toString() {
         return "AgentInfoVO{" +
@@ -192,10 +164,9 @@ public class AgentInfoVO implements Serializable {
                 ", agtName='" + agtName + '\'' +
                 ", agtPhone='" + agtPhone + '\'' +
                 ", agtNo='" + agtNo + '\'' +
-                ", startTime='" + startTime + '\'' +
-                ", endTime='" + endTime + '\'' +
                 ", state=" + state +
                 ", agtType=" + agtType +
+                ", secretType=" + secretType +
                 ", saler=" + saler +
                 ", parentId=" + parentId +
                 ", agtOfficeAddr='" + agtOfficeAddr + '\'' +
@@ -203,8 +174,6 @@ public class AgentInfoVO implements Serializable {
                 ", linkMobile='" + linkMobile + '\'' +
                 ", remark='" + remark + '\'' +
                 ", idCard='" + idCard + '\'' +
-                ", currentPage=" + currentPage +
-                ", pageSize=" + pageSize +
                 '}';
     }
 }

@@ -19,15 +19,43 @@ public interface AgentInfoDao {
 
     List<AgtAccessEntity> queryAgtAccessList(AgentInfoVO agentInfoVO);
 
+    AgentInfoEntity getAgentInfo(@Param("id") Integer id);
+
     AgtAccess getAgtAccessInfo(AgtAccessVo agtAccessVo);
 
+    /**
+     * 校验手机号码是否唯一
+     *
+     * @param linkMobile 联系手机
+     * @return 结果
+     */
+    AgentInfoEntity checkPhoneUnique(String linkMobile);
+
+    /**
+     * 校验email是否唯一
+     *
+     * @param linkEmail 邮箱
+     * @return 结果
+     */
+    AgentInfoEntity checkEmailUnique(String linkEmail);
+
+    /**
+     * 校验agtName是否唯一
+     *
+     * @param agtName 商户名称
+     * @return 结果
+     */
+    AgentInfoEntity checkAgtNameUnique(String agtName);
+
     int updateAgentInfo(AgentInfoVO agentInfoVO);
+
+    int updateAgentStatus(AgentInfoVO agentInfoVO);
 
     int refreshAppKey(AgtAccessVo agtAccessVo);
 
     int addAgentInfo(AgentInfoVO agentInfoVO);
 
-    int deleteAgentInfo(@Param("id") Integer id);
+    int deleteAgentInfo(Integer[] ids);
 
     int insertAgtAccess(AgtAccess agtAccess);
 

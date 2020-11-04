@@ -9,9 +9,7 @@ import java.util.Map;
 
 public interface NotifyInfoService {
 
-    PageBean<NotifyInfoEntity> queryNotifyList(NotifyInfoVO notifyInfoVO);
-
-    int updateNotifyInfo(NotifyInfoVO notifyInfoVO);
+    List<NotifyInfoEntity> queryNotifyList(NotifyInfoVO notifyInfoVO);
 
     List<Map<String,Object>> querySumAmount(NotifyInfoVO notifyInfoVO);
 

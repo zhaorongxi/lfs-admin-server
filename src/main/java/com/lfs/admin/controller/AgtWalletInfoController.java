@@ -44,58 +44,5 @@ public class AgtWalletInfoController {
         return ResultObject.successObject(agtWalletList, "查询列表成功");
     }
 
-    /**
-     * 更新商户信息
-     * @param agentInfoVO
-     * @return
-     */
-    @PostMapping("/updateAgentInfo")
-    public Result<?> updateAgentInfo(@RequestBody AgentInfoVO agentInfoVO){
-        if(null == agentInfoVO.getId()){
-            throw new BusinessException("请求更新的id不能为空!");
-        }
-        int result = 1;
-        if(result <= 0){
-            logger.info("未更新到任意一条记录!");
-        }
-        return  ResultObject.successMessage("更新成功!");
-    }
-
-    /**
-     * 新增商户信息
-     * @param agentInfoVO
-     * @return
-     */
-    @PostMapping("/addAgentInfo")
-    public Result<?> addAgentInfo(@RequestBody AgentInfoVO agentInfoVO){
-        if(StringUtils.isBlank(agentInfoVO.getAgtPhone())){
-            throw new BusinessException("客户账号不能为空!");
-        }
-        if(null == agentInfoVO.getAgtName()){
-            throw new BusinessException("客户账号名称不能为空!");
-        }
-        int result = 1;
-        if(result <= 0){
-            throw new BusinessException("新增客户信息失败!");
-        }
-        return  ResultObject.successMessage("新增客户信息成功!");
-    }
-
-    /**
-     * 删除商户信息
-     * @param agentInfoVO
-     * @return
-     */
-    @PostMapping("/deleteAgentInfo")
-    public Result<?> deleteAgentInfo(@RequestBody AgentInfoVO agentInfoVO){
-        if(null == agentInfoVO.getId()){
-            throw new BusinessException("请求删除的id不能为空!");
-        }
-        int result = 1;
-        if(result <= 0){
-            throw new BusinessException("删除商户信息失败!");
-        }
-        return  ResultObject.successMessage("删除商户信息成功!");
-    }
 
 }

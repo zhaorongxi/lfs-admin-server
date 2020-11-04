@@ -7,10 +7,13 @@ import com.lfs.base.dto.Result;
 import com.lfs.base.dto.ResultObject;
 import com.lfs.base.exception.BusinessException;
 import com.lfs.base.util.StringUtils;
+import com.lfs.common.core.controller.BaseController;
+import com.lfs.common.core.page.TableDataInfo;
 import com.lfs.dao.entity.PageBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +24,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/notifyInfo")
-public class NotifyInfoController {
+public class NotifyInfoController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(NotifyInfoController.class);
 
@@ -34,16 +37,17 @@ public class NotifyInfoController {
      * @return
      * @throws Exception
      */
+    @PreAuthorize("@ss.hasPermi('order:notifyList')")
     @PostMapping("/queryNotifyList")
-    public Result<?> queryNotifyList(@RequestBody NotifyInfoVO notifyInfoVO) {
+    public TableDataInfo queryNotifyList(NotifyInfoVO notifyInfoVO) {
 
         if(null == notifyInfoVO){
             throw new BusinessException("请求查询回调列表参数不能为空!");
         }
 
         logger.info("根据{},查询回调列表请求参数", notifyInfoVO.toString());
-        PageBean<NotifyInfoEntity> notifyList = notifyInfoService.queryNotifyList(notifyInfoVO);
-        return ResultObject.successObject(notifyList, "查询列表成功");
+        List<NotifyInfoEntity> notifyList = notifyInfoService.queryNotifyList(notifyInfoVO);
+        return getDataTable(notifyList);
     }
 
     /**
@@ -56,7 +60,7 @@ public class NotifyInfoController {
         if(null == notifyInfoVO.getId() &&  StringUtils.isBlank(notifyInfoVO.getOrderNo())){
             throw new BusinessException("请求更新的id或订单号不能为空!");
         }
-        int result = notifyInfoService.updateNotifyInfo(notifyInfoVO);
+        int result = 0;
         if(result <= 0){
             logger.info("未更新到任意一条记录!");
         }

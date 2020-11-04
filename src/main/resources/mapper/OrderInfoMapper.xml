@@ -24,8 +24,11 @@
 		<if test="null != state and state != -2">
 			and o.state = #{state}
 		</if>
-		<if test="null != startTime and  ''!= startTime">
-			<![CDATA[and o.apply_time  between #{startTime} and #{endTime} ]]>
+		<if test="beginTime != null and beginTime != ''"><!-- 开始时间检索 -->
+			and date_format(o.apply_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+		</if>
+		<if test="endTime != null and endTime != ''"><!-- 结束时间检索 -->
+			and date_format(o.apply_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
 		</if>
 		<if test="null != chargeAddr and '' != chargeAddr">
 			and o.charge_addr = #{chargeAddr}

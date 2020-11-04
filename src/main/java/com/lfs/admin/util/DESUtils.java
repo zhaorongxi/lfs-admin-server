@@ -28,7 +28,7 @@ public class DESUtils {
     }
 
     public static String getKey() {
-        return getRandomString(16);
+        return getRandomString(8);
     }
 
     public static String encrypt(String data, String key) throws Exception {

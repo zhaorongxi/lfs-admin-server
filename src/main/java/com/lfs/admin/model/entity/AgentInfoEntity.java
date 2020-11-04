@@ -5,7 +5,7 @@ import org.apache.ibatis.type.Alias;
 @Alias("AgentInfoEntity")
 public class AgentInfoEntity {
 
-    private Long id;
+    private Integer id;
 
     private String agtName;
 
@@ -25,6 +25,8 @@ public class AgentInfoEntity {
 
     private String linkMobile;
 
+    private String linkEmail;
+
     private String remark;
 
     private Integer agtType;
@@ -35,12 +37,11 @@ public class AgentInfoEntity {
 
     private String updateTime;
 
-
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -154,6 +155,14 @@ public class AgentInfoEntity {
 
     public void setUpdateTime(String updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getLinkEmail() {
+        return linkEmail;
+    }
+
+    public void setLinkEmail(String linkEmail) {
+        this.linkEmail = linkEmail;
     }
 
     @Override

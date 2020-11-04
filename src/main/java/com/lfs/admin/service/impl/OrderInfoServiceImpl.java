@@ -59,16 +59,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     private String appAuthToken;
 
     @Override
-    public PageBean<OrderInfoEntity> queryOrderInfo(OrderInfoVO orderQueryVO) {
-        List<OrderInfoEntity> orderList = new ArrayList<>();
-        try {
-            PageHelper.startPage(orderQueryVO.getCurrentPage(), orderQueryVO.getPageSize());
-            orderList = orderInfoDao.queryOrderInfo(orderQueryVO);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new PageBean<OrderInfoEntity>(orderList);
+    public List<OrderInfoEntity> queryOrderInfo(OrderInfoVO orderQueryVO) {
+        return orderInfoDao.queryOrderInfo(orderQueryVO);
     }
 
     @Override
@@ -132,7 +124,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             AlipayClient alipayClient = new DefaultAlipayClient(aliPayUrl, appId, privateKey, "json", "utf-8", publicKey, "RSA2");
             AlipayDataDataserviceBillDownloadurlQueryRequest request = new AlipayDataDataserviceBillDownloadurlQueryRequest();
             jsonObject.put("bill_type", "signcustomer");  // 账单类型
-            jsonObject.put("bill_date", orderQueryVO.getEndTime());  // 账单日期
+            jsonObject.put("bill_date", orderQueryVO.getApplyTime());  // 账单日期
             request.setBizContent(jsonObject.toJSONString());
             request.putOtherTextParam("app_auth_token", appAuthToken.getAppAuthToken());
             response = alipayClient.execute(request);
@@ -173,8 +165,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         PageHelper.startPage(orderInfoVO.getCurrentPage(), orderInfoVO.getPageSize());
         try {
             Map<String, Object> map = new HashMap<>();
-            map.put("startTime", orderInfoVO.getStartTime());
-            map.put("endTime", orderInfoVO.getEndTime());
+            map.put("startTime", orderInfoVO.getApplyTime());
             chargeList = orderInfoDao.getOrderTradeList(map);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

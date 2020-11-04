@@ -1,6 +1,7 @@
 package com.lfs.admin.controller;
 
 import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.lfs.admin.model.SysOperLog;
 import com.lfs.admin.model.entity.OrderInfoEntity;
 import com.lfs.admin.model.report.OrderTrade;
 import com.lfs.admin.service.OrderInfoService;
@@ -9,6 +10,8 @@ import com.lfs.base.dto.Result;
 import com.lfs.base.dto.ResultObject;
 import com.lfs.base.exception.BusinessException;
 import com.lfs.base.util.StringUtils;
+import com.lfs.common.core.controller.BaseController;
+import com.lfs.common.core.page.TableDataInfo;
 import com.lfs.dao.entity.PageBean;
 import com.lfs.interfaces.model.vo.OrderInfoVO;
 import com.lfs.interfaces.order.service.OrderBaseService;
@@ -17,6 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +31,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/order")
-public class OrderInfoController {
+public class OrderInfoController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(OrderInfoController.class);
 
@@ -62,15 +66,18 @@ public class OrderInfoController {
      * @return
      * @throws Exception
      */
+    @PreAuthorize("@ss.hasPermi('order:orderList')")
     @PostMapping("/queryOrderInfo")
-    public Result<?> queryOrderInfo(@RequestBody OrderInfoVO orderInfoVO) {
+    public TableDataInfo queryOrderInfo(OrderInfoVO orderInfoVO) {
 
         logger.info("根据{}查询订单请求参数",orderInfoVO.toString());
-        PageBean<OrderInfoEntity> orderQueryEntity = orderInfoService.queryOrderInfo(orderInfoVO);
+        startPage();
+
+        List<OrderInfoEntity> orderQueryEntity = orderInfoService.queryOrderInfo(orderInfoVO);
         if(null == orderQueryEntity){
             throw new BusinessException("根据订单号未查询到订单记录!");
         }
-        return ResultObject.successObject(orderQueryEntity, "查询成功");
+        return getDataTable(orderQueryEntity);
     }
 
     @PostMapping("/queryAliPayOrderInfo")
@@ -93,9 +100,6 @@ public class OrderInfoController {
     public Result<String> queryAliPayDataBill(@RequestBody OrderInfoVO orderInfoVO){
         if(null == orderInfoVO){
             throw new BusinessException("请求的参数不能为空!");
-        }
-        if(StringUtils.isBlank(orderInfoVO.getEndTime())){
-            throw new BusinessException("请求的账单日期不能为空!");
         }
         if(StringUtils.isBlank(orderInfoVO.getChargeAddr())){
             throw new BusinessException("请求的收款方账号不能为空!");

@@ -15,6 +15,8 @@ import com.lfs.base.util.StringUtils;
 import com.lfs.common.cache.redis.base.MapCache;
 import com.lfs.common.constant.CommonConstants;
 import com.lfs.common.constant.Constant;
+import com.lfs.common.constant.UserConstants;
+import com.lfs.common.core.domain.entity.SysUser;
 import com.lfs.dao.entity.PageBean;
 import com.lfs.dao.service.SystemService;
 import com.lfs.interfaces.dao.AgentDao;
@@ -30,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,39 +55,79 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private MapCache mapCache;
 
     @Override
+    public AgentInfoEntity getAgentInfo(Integer id) {
+        return agentInfoDao.getAgentInfo(id);
+    }
+
+    @Override
     public List<AgentInfoEntity> querySelectList(AgentInfoVO agentInfoVO) {
         return agentInfoDao.querySelectList(agentInfoVO);
     }
 
     @Override
-    public PageBean<AgentInfoEntity> queryAgentList(AgentInfoVO agentInfoVO) {
-        List<AgentInfoEntity> agentList = new ArrayList<>();
-        try {
-            PageHelper.startPage(agentInfoVO.getCurrentPage(), agentInfoVO.getPageSize());
-            agentList = agentInfoDao.queryAgentList(agentInfoVO);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new PageBean<AgentInfoEntity>(agentList);
+    public List<AgentInfoEntity> queryAgentList(AgentInfoVO agentInfoVO) {
+        return agentInfoDao.queryAgentList(agentInfoVO);
     }
 
     @Override
-    public PageBean<AgtAccessEntity> queryAgtAccessList(AgentInfoVO agentInfoVO) {
+    public List<AgtAccessEntity> queryAgtAccessList(AgentInfoVO agentInfoVO) {
         List<AgtAccessEntity> accessList = new ArrayList<>();
         try {
-            PageHelper.startPage(agentInfoVO.getCurrentPage(), agentInfoVO.getPageSize());
             accessList = agentInfoDao.queryAgtAccessList(agentInfoVO);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new PageBean<AgtAccessEntity>(accessList);
+        return accessList;
+    }
+
+    @Override
+    public String checkPhoneUnique(AgentInfoVO agentInfoVO) {
+        AgentInfoEntity entity = agentInfoDao.checkPhoneUnique(agentInfoVO.getLinkMobile());
+        if (StringUtils.isNotNull(entity) && !entity.getId().equals(agentInfoVO.getId()))
+        {
+            return UserConstants.NOT_UNIQUE;
+        }
+        return UserConstants.UNIQUE;
+    }
+
+    @Override
+    public String checkEmailUnique(AgentInfoVO agentInfoVO) {
+        AgentInfoEntity entity = agentInfoDao.checkEmailUnique(agentInfoVO.getLinkEmail());
+        if (StringUtils.isNotNull(entity) && !entity.getId().equals(agentInfoVO.getId()))
+        {
+            return UserConstants.NOT_UNIQUE;
+        }
+        return UserConstants.UNIQUE;
+    }
+
+    @Override
+    public String checkAgentNameUnique(String agtName) {
+        AgentInfoEntity entity = agentInfoDao.checkAgtNameUnique(agtName);
+        if (StringUtils.isNotNull(entity))
+        {
+            return UserConstants.NOT_UNIQUE;
+        }
+        return UserConstants.UNIQUE;
+    }
+
+    @Override
+    public String checkAgtPhoneUnique(String agtPhone) {
+        List<Agent> agents = agentDao.getAgentInfoByPhone(agtPhone);
+        if (CollectionUtils.isNotEmpty(agents))
+        {
+            return UserConstants.NOT_UNIQUE;
+        }
+        return UserConstants.UNIQUE;
     }
 
     @Override
     public int updateAgentInfo(AgentInfoVO agentInfoVO) {
         return agentInfoDao.updateAgentInfo(agentInfoVO);
+    }
+
+    @Override
+    public int updateAgentStatus(AgentInfoVO agentInfoVO) {
+        return agentInfoDao.updateAgentStatus(agentInfoVO);
     }
 
     @Override
@@ -96,11 +139,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
                 AgtAccessVo agtAccessVo = new AgtAccessVo();
                 agtAccessVo.setAgtNo(agents.get(0).getAgtNo());
                 agtAccessVo.setAppType(agentInfoVO.getSecretType());
-                if(agentInfoVO.getSecretType().equals(CommonConstants.SECURITY_FOR_JAVA)){
-                    agtAccessVo.setAppKey(DESUtils.getKey());
-                }else{
-                    agtAccessVo.setAppKey(DESUtils.getKey().substring(0,8));
-                }
+                agtAccessVo.setAppKey(DESUtils.getKey());
                 result = agentInfoDao.refreshAppKey(agtAccessVo);
                 if(result <= 0){
                     throw new BusinessException("更新商户秘钥失败!");
@@ -124,14 +163,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public Result<?> addAgentInfo(AgentInfoVO agentInfoVO) {
+    @Transactional
+    public int addAgentInfo(AgentInfoVO agentInfoVO) {
+        int result = 0;
         try {
             List<Agent> agents = agentDao.getAgentInfoByPhone(agentInfoVO.getAgtPhone());
             if (agents.size() > 0) {
                 throw new BusinessException("该商户号已被注册!");
             } else {
                 agentInfoVO.setAgtNo(agentInfoVO.getAgtPhone());
-                if (agentInfoDao.addAgentInfo(agentInfoVO) > 0) {
+                result = agentInfoDao.addAgentInfo(agentInfoVO);
+                if (result > 0) {
                     // 插入钱包
                     AgtWallet wallet = new AgtWallet(agentInfoVO.getAgtPhone());
                     agentInfoDao.insertAgtWallet(wallet);
@@ -160,7 +202,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
                     logFile.setBeforeUpdate("");
                     logFileService.insertLogFile(logFile);
 
-                    return ResultObject.successMessage("添加商户信息成功");
+                    return result;
                 } else {
                     throw new BusinessException("添加商户信息失败");
                 }
@@ -171,7 +213,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public int deleteAgentInfo(Integer id){
-        return agentInfoDao.deleteAgentInfo(id);
+    public int deleteAgentInfo(Integer[] ids){
+        return agentInfoDao.deleteAgentInfo(ids);
     }
 }

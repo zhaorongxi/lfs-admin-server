@@ -14,13 +14,7 @@ public class NotifyInfoEntity implements Serializable {
 
     private String reqStreamId;
 
-    private String payAccountName;
-
-    private String chargeAddr;
-
     private BigDecimal price;
-
-    private BigDecimal profit;
 
     private String notifyUrl;
 
@@ -28,13 +22,7 @@ public class NotifyInfoEntity implements Serializable {
 
     private Integer count;
 
-    private Integer flag;
-
-    private Integer state;
-
     private String orderNo;
-    
-    private BigDecimal chargeMoney;
 
     public Integer getId() {
         return id;
@@ -43,30 +31,6 @@ public class NotifyInfoEntity implements Serializable {
     public void setId(Integer id) {
         this.id = id;
     }
-
-    public BigDecimal getChargeMoney() {
-        return chargeMoney;
-    }
-
-    public void setChargeMoney(BigDecimal chargeMoney) {
-        this.chargeMoney = chargeMoney;
-    }
-
-    public String getChargeAddr() {
-        return chargeAddr;
-    }
-
-    public void setChargeAddr(String chargeAddr) {
-        this.chargeAddr = chargeAddr;
-    }
-
-    public String getOrderNo() {
-		return orderNo;
-	}
-
-	public void setOrderNo(String orderNo) {
-		this.orderNo = orderNo;
-	}
 
     public String getAgtPhone() {
         return agtPhone;
@@ -82,6 +46,14 @@ public class NotifyInfoEntity implements Serializable {
 
     public void setReqStreamId(String reqStreamId) {
         this.reqStreamId = reqStreamId;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public String getNotifyUrl() {
@@ -108,43 +80,11 @@ public class NotifyInfoEntity implements Serializable {
         this.count = count;
     }
 
-    public Integer getFlag() {
-        return flag;
+    public String getOrderNo() {
+        return orderNo;
     }
 
-    public void setFlag(Integer flag) {
-        this.flag = flag;
-    }
-
-    public Integer getState() {
-        return state;
-    }
-
-    public void setState(Integer state) {
-        this.state = state;
-    }
-
-    public String getPayAccountName() {
-        return payAccountName;
-    }
-
-    public void setPayAccountName(String payAccountName) {
-        this.payAccountName = payAccountName;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public BigDecimal getProfit() {
-        return profit;
-    }
-
-    public void setProfit(BigDecimal profit) {
-        this.profit = profit;
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
     }
 }

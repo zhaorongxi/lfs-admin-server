@@ -11,7 +11,7 @@ import java.util.Map;
 
 public interface OrderInfoService {
 
-    PageBean<OrderInfoEntity> queryOrderInfo(OrderInfoVO orderInfoVO);
+    List<OrderInfoEntity> queryOrderInfo(OrderInfoVO orderInfoVO);
 
     Map<String,String> getOrderInfoByOrderNo(OrderInfoVO orderInfoVO);
 

@@ -4,7 +4,7 @@
     <contextName>monitor-extract</contextName>
 
     <property name="logback.dir" value="logs"/>
-    <property name="logback.appname" value="bc-admin"/>
+    <property name="logback.appname" value="lfs-admin"/>
 
     <!--引用application.properties中的配置信息-->
     <springProperty scope="context" name="logLevel" source="project.log.level"/>
