@@ -38,18 +38,6 @@ public class NotifyInfoServiceImpl implements NotifyInfoService {
     @Autowired
     private NotifyInfoDao notifyInfoDao;
 
-    @Autowired
-    private OrderChargeDao orderChargeDao;
-
-    @Autowired
-    private AgentWalletDao agentWalletDao;
-
-    @Autowired
-    private LogFileService logFileService;
-
-    @Autowired
-    private MapCache mapCache;
-
     @Override
     public List<NotifyInfoEntity> queryNotifyList(NotifyInfoVO notifyInfoVO) {
         return notifyInfoDao.queryNotifyList(notifyInfoVO);

@@ -16,7 +16,7 @@
 
 	<!-- 查询回调列表详情 -->
 	<select id="queryNotifyList" parameterType="com.lfs.admin.model.vo.NotifyInfoVO" resultType="com.lfs.admin.model.entity.NotifyInfoEntity">
-		select DISTINCT bon.id,bon.agt_phone agtPhone,bon.req_stream_id reqStreamId,bon.count,
+		select  bon.id,bon.agt_phone agtPhone,bon.req_stream_id reqStreamId,bon.count,
 		bon.order_no orderNo,bon.price,date_format(bon.apply_time,'%Y-%m-%d %T') applyTime,bon.notify_url notifyUrl
 		from lfs_order_nofity bon
 		where 1=1

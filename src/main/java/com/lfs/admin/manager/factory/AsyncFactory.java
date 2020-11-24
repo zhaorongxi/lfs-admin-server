@@ -1,6 +1,7 @@
 package com.lfs.admin.manager.factory;
 
 import com.lfs.admin.systemService.ISysLogininforService;
+import com.lfs.base.aspect.UnLogAspect;
 import com.lfs.common.constant.Constants;
 import com.lfs.common.utils.LogUtils;
 import com.lfs.common.utils.ServletUtils;
@@ -34,6 +35,7 @@ public class AsyncFactory
      * @param args 列表
      * @return 任务task
      */
+    @UnLogAspect
     public static TimerTask recordLogininfor(final String username, final String status, final String message,
             final Object... args)
     {

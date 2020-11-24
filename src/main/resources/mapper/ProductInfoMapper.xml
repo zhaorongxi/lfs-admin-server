@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lfs.admin.dao.ProductInfoDao">
+
+	<!--产品信息 -->
+	<resultMap type="com.lfs.admin.model.entity.ProductInfoEntity" id="productMap">
+		<id     property="id"      column="id"      />
+		<result property="productNum" column="product_num" />
+		<result property="businessNum" column="business_num" />
+		<result property="tradeFace" column="trade_face" />
+		<result property="unit" column="unit" />
+		<result property="price" column="price" />
+		<result property="productType" column="product_type" />
+		<result property="state" column="state" />
+		<result property="productDetail" column="product_detail" />
+		<result property="updateTime" column="update_time" />
+		<result property="createTime" column="create_time" />
+	</resultMap>
+
+	<!-- 查询产品列表详情 -->
+	<select id="queryProductList" parameterType="com.lfs.admin.model.vo.ProductInfoVo" resultType="com.lfs.admin.model.entity.ProductInfoEntity">
+		select id,product_num productNum,business_num businessNum,trade_face tradeFace,
+		unit,price,product_type productType,state,product_detail productDetail,
+		date_format(create_time,'%Y-%m-%d %T') createTime from lfs_product
+		<where>
+			<if test="productNum!=null and productNum!=''">
+				and product_num = #{productNum}
+			</if>
+			<if test="beginTime != null and beginTime != ''"><!-- 开始时间检索 -->
+				and date_format(create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+			</if>
+			<if test="endTime != null and endTime != ''"><!-- 结束时间检索 -->
+				and date_format(create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+			</if>
+			<if test="tradeFace!=null and tradeFace!=''">
+				and trade_face =#{tradeFace}
+			</if>
+			<if test="null != state and state != -1	">
+				and state =#{state}
+			</if>
+			<if test="null != productType and productType != -1	">
+				and product_type =#{productType}
+			</if>
+		</where>
+		order by create_time desc
+	</select>
+
+	<select id="getProductByCode" parameterType="java.lang.Long" resultType="com.lfs.admin.model.entity.ProductInfoEntity">
+		select id,product_num productNum,business_num businessNum,trade_face tradeFace,
+		unit,price,product_type productType,state,product_detail productDetail,
+		date_format(create_time,'%Y-%m-%d %T') createTime from lfs_product
+		where product_num = #{productCode}
+	</select>
+
+	<update id="updateProductInfo" parameterType="com.lfs.admin.model.vo.ProductInfoVo">
+		update lfs_product
+		<set>
+			<if test="null != productType and '' != productType">
+				product_type = #{productType},
+			</if>
+			<if test="null != unit and '' != unit">
+				unit = #{unit},
+			</if>
+			<if test="null != tradeFace and '' != tradeFace">
+				trade_face = #{tradeFace},
+			</if>
+			<if test="null != state and state != -1">
+				state = #{state},
+			</if>
+			<if test="null != productDetail">
+				product_detail = #{productDetail},
+			</if>
+			update_time = now()
+		</set>
+		where product_num = #{productNum}
+	</update>
+
+	<update id="updateProductStatus" parameterType="com.lfs.admin.model.vo.ProductInfoVo">
+		update lfs_product set state = #{state} where id = #{id}
+	</update>
+
+	<insert id="addProductInfo" parameterType="com.lfs.admin.model.vo.ProductInfoVo">
+		insert into lfs_product
+		(product_num,business_num,number_id,trade_face,unit,price,state,product_type,
+		product_detail,special_type,create_time,update_time)
+		values
+		(#{productNum},#{businessNum},#{businessNum},#{tradeFace},#{unit},#{tradeFace},#{state},
+		#{productType},#{productDetail},-1,now(),now())
+	</insert>
+
+	<delete id="deleteProductInfo" parameterType="java.lang.Long">
+		delete from  lfs_product  where id in
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

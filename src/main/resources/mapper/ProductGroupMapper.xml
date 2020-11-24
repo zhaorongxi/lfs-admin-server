@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lfs.admin.dao.ProductGroupDao">
+
+	<!--产品信息 -->
+	<resultMap type="com.lfs.admin.model.entity.ProductGroupEntity" id="productMap">
+		<id     property="id"      column="id"      />
+		<result property="groupNum" column="group_num" />
+		<result property="groupName" column="group_name" />
+		<result property="groupState" column="group_state" />
+		<result property="updateTime" column="update_time" />
+		<result property="createTime" column="create_time" />
+	</resultMap>
+
+	<!-- 查询产品列表详情 -->
+	<select id="queryProductGroupList" parameterType="com.lfs.admin.model.vo.ProductGroupVo" resultType="com.lfs.admin.model.entity.ProductGroupEntity">
+		select id,group_num,group_name,group_state,update_time,create_time from lfs_productgroup
+		<where>
+			<if test="groupNum!=null and groupNum!=''">
+				and group_num = #{groupNum}
+			</if>
+			<if test="beginTime != null and beginTime != ''"><!-- 开始时间检索 -->
+				and date_format(create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+			</if>
+			<if test="endTime != null and endTime != ''"><!-- 结束时间检索 -->
+				and date_format(create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+			</if>
+			<if test="groupName!=null and groupName!=''">
+				and group_name =#{groupName}
+			</if>
+			<if test="null != groupState and groupState != -1	">
+				and group_state =#{groupState}
+			</if>
+		</where>
+		order by create_time desc
+	</select>
+
+	<select id="getProductGroupByCode" parameterType="java.lang.Long" resultType="com.lfs.admin.model.entity.ProductGroupEntity">
+		select id,product_num productNum,business_num businessNum,trade_face tradeFace,
+		unit,price,product_type productType,state,product_detail productDetail,
+		date_format(create_time,'%Y-%m-%d %T') createTime from lfs_product
+		where product_num = #{productCode}
+	</select>
+
+	<update id="updateProductGroup" parameterType="com.lfs.admin.model.vo.ProductGroupVo">
+		update lfs_productgroup
+		<set>
+			<if test="groupName!=null and groupName!=''">
+				and group_name =#{groupName}
+			</if>
+			<if test="null != groupState and groupState != -1	">
+				and group_state =#{groupState}
+			</if>
+			update_time = now()
+		</set>
+		where group_num = #{groupNum}
+	</update>
+
+	<update id="updateProductStatus" parameterType="com.lfs.admin.model.vo.AgentInfoVO">
+		update lfs_product set state = #{state} where id = #{id}
+	</update>
+
+	<insert id="addProductGroup" parameterType="com.lfs.admin.model.vo.ProductGroupVo">
+		insert into lfs_productgroup
+		(group_num,group_name,group_state,create_time,update_time)
+		values
+		(#{groupName},#{groupName},#{groupState},now(),now())
+	</insert>
+
+	<delete id="deleteProductGroup" parameterType="java.lang.Long">
+		delete from  lfs_productgroup  where id in
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

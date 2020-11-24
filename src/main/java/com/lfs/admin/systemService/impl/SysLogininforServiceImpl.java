@@ -3,6 +3,7 @@ package com.lfs.admin.systemService.impl;
 import com.lfs.admin.dao.system.SysLogininforMapper;
 import com.lfs.admin.model.SysLogininfor;
 import com.lfs.admin.systemService.ISysLogininforService;
+import com.lfs.base.aspect.UnLogAspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ public class SysLogininforServiceImpl implements ISysLogininforService
      * @param logininfor 访问日志对象
      */
     @Override
+    @UnLogAspect
     public void insertLogininfor(SysLogininfor logininfor)
     {
         logininforMapper.insertLogininfor(logininfor);
