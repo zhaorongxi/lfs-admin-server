@@ -9,13 +9,13 @@ import java.util.List;
 
 public interface ProductGroupService {
 
-    ProductGroupEntity getProductGroupByCode(String groupNum);
+    ProductGroupEntity getProductGroupById(Integer id);
 
     List<ProductGroupEntity> queryProductGroupList(ProductGroupVo productGroupVo);
 
     int updateProductGroup(ProductGroupVo productGroupVo);
 
-    int updateProductStatus(ProductGroupVo productGroupVo);
+    int updateProductGroupStatus(ProductGroupVo productGroupVo);
 
     int addProductGroup(ProductGroupVo productGroupVo);
 

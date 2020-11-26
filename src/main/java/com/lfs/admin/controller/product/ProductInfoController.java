@@ -60,12 +60,12 @@ public class ProductInfoController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('product:productInfo:query')")
     @GetMapping(value = { "/getProductInfo/{id}"})
-    public AjaxResult getProductInfo(@PathVariable(value = "id", required = false) Long productNum)
+    public AjaxResult getProductInfo(@PathVariable(value = "id", required = false) Integer id)
     {
         AjaxResult ajax = AjaxResult.success();
-        if (StringUtils.isNotNull(productNum))
+        if (StringUtils.isNotNull(id))
         {
-            ajax.put(AjaxResult.DATA_TAG, productInfoService.getProductByCode(productNum));
+            ajax.put(AjaxResult.DATA_TAG, productInfoService.getProductById(id));
         }
         return ajax;
     }

@@ -3,7 +3,7 @@
 <mapper namespace="com.lfs.admin.dao.ProductGroupDao">
 
 	<!--产品信息 -->
-	<resultMap type="com.lfs.admin.model.entity.ProductGroupEntity" id="productMap">
+	<resultMap type="com.lfs.admin.model.entity.ProductGroupEntity" id="productGroupMap">
 		<id     property="id"      column="id"      />
 		<result property="groupNum" column="group_num" />
 		<result property="groupName" column="group_name" />
@@ -14,7 +14,8 @@
 
 	<!-- 查询产品列表详情 -->
 	<select id="queryProductGroupList" parameterType="com.lfs.admin.model.vo.ProductGroupVo" resultType="com.lfs.admin.model.entity.ProductGroupEntity">
-		select id,group_num,group_name,group_state,update_time,create_time from lfs_productgroup
+		select id,group_num groupNum,group_name groupName,group_state groupState,
+		date_format(create_time,'%Y-%m-%d %T') createTime  from lfs_productgroup
 		<where>
 			<if test="groupNum!=null and groupNum!=''">
 				and group_num = #{groupNum}
@@ -35,36 +36,43 @@
 		order by create_time desc
 	</select>
 
-	<select id="getProductGroupByCode" parameterType="java.lang.Long" resultType="com.lfs.admin.model.entity.ProductGroupEntity">
-		select id,product_num productNum,business_num businessNum,trade_face tradeFace,
-		unit,price,product_type productType,state,product_detail productDetail,
-		date_format(create_time,'%Y-%m-%d %T') createTime from lfs_product
-		where product_num = #{productCode}
+	<select id="getProductGroupById" parameterType="java.lang.Integer" resultType="com.lfs.admin.model.entity.ProductGroupEntity">
+		select id,group_num groupNum,group_name groupName,group_state groupState,
+		date_format(create_time,'%Y-%m-%d %T') createTime  from lfs_productgroup
+		where id = #{id}
 	</select>
+
+	<select id="getProductGroupByCode" parameterType="java.lang.String" resultType="com.lfs.admin.model.entity.ProductGroupEntity">
+		select id,group_num groupNum,group_name groupName,group_state groupState,
+		date_format(create_time,'%Y-%m-%d %T') createTime  from lfs_productgroup
+		where group_num = #{groupNum}
+	</select>
+
+
 
 	<update id="updateProductGroup" parameterType="com.lfs.admin.model.vo.ProductGroupVo">
 		update lfs_productgroup
 		<set>
 			<if test="groupName!=null and groupName!=''">
-				and group_name =#{groupName}
+				group_name =#{groupName},
 			</if>
 			<if test="null != groupState and groupState != -1	">
-				and group_state =#{groupState}
+				group_state =#{groupState},
 			</if>
 			update_time = now()
 		</set>
-		where group_num = #{groupNum}
+		where id = #{id}
 	</update>
 
-	<update id="updateProductStatus" parameterType="com.lfs.admin.model.vo.AgentInfoVO">
-		update lfs_product set state = #{state} where id = #{id}
+	<update id="updateProductGroupStatus" parameterType="com.lfs.admin.model.vo.ProductGroupVo">
+		update lfs_productgroup set group_state = #{groupState} where id = #{id}
 	</update>
 
 	<insert id="addProductGroup" parameterType="com.lfs.admin.model.vo.ProductGroupVo">
 		insert into lfs_productgroup
 		(group_num,group_name,group_state,create_time,update_time)
 		values
-		(#{groupName},#{groupName},#{groupState},now(),now())
+		(#{groupNum},#{groupName},#{groupState},now(),now())
 	</insert>
 
 	<delete id="deleteProductGroup" parameterType="java.lang.Long">

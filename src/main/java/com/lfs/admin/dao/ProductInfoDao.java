@@ -18,12 +18,9 @@ public interface ProductInfoDao {
 
     List<ProductInfoEntity> queryProductList(ProductInfoVo productInfoVo);
 
-    /**
-     * 根据产品编码获取产品详情
-     * @param productCode
-     * @return
-     */
     ProductInfoEntity getProductByCode(@Param("productCode") Long productCode);
+
+    ProductInfoEntity getProductById(@Param("id") Integer id);
 
     int updateProductInfo(ProductInfoVo productInfoVo);
 

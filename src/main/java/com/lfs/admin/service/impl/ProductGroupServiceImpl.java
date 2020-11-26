@@ -32,8 +32,8 @@ public class ProductGroupServiceImpl implements ProductGroupService {
     private LogFileService logFileService;
 
     @Override
-    public ProductGroupEntity getProductGroupByCode(String groupNum) {
-        return productGroupDao.getProductGroupByCode(groupNum);
+    public ProductGroupEntity getProductGroupById(Integer id) {
+        return productGroupDao.getProductGroupById(id);
     }
 
     @Override
@@ -48,8 +48,8 @@ public class ProductGroupServiceImpl implements ProductGroupService {
     }
 
     @Override
-    public int updateProductStatus(ProductGroupVo productGroupVo) {
-        return productGroupDao.updateProductStatus(productGroupVo);
+    public int updateProductGroupStatus(ProductGroupVo productGroupVo) {
+        return productGroupDao.updateProductGroupStatus(productGroupVo);
     }
 
 

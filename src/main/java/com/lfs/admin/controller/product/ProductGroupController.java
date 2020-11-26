@@ -2,6 +2,7 @@ package com.lfs.admin.controller.product;
 
 import com.lfs.admin.model.entity.ProductGroupEntity;
 import com.lfs.admin.model.entity.ProductInfoEntity;
+import com.lfs.admin.model.vo.AgentInfoVO;
 import com.lfs.admin.model.vo.ProductGroupVo;
 import com.lfs.admin.model.vo.ProductInfoVo;
 import com.lfs.admin.service.ProductGroupService;
@@ -62,12 +63,12 @@ public class ProductGroupController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('product:productGroup:query')")
     @GetMapping(value = { "/getProductGroup/{id}"})
-    public AjaxResult getProductInfo(@PathVariable(value = "id", required = false) String groupNum)
+    public AjaxResult getProductInfo(@PathVariable(value = "id", required = false) Integer id)
     {
         AjaxResult ajax = AjaxResult.success();
-        if (StringUtils.isNotNull(groupNum))
+        if (StringUtils.isNotNull(id))
         {
-            ajax.put(AjaxResult.DATA_TAG, productGroupService.getProductGroupByCode(groupNum));
+            ajax.put(AjaxResult.DATA_TAG, productGroupService.getProductGroupById(id));
         }
         return ajax;
     }
@@ -80,8 +81,8 @@ public class ProductGroupController extends BaseController {
     @PutMapping("/updateProductGroup")
     @Log(title = "产品组管理", businessType = BusinessType.UPDATE)
     public Result<?> updateProductGroup(@RequestBody ProductGroupVo productGroupVo){
-        if(null == productGroupVo.getGroupNum()){
-            throw new BusinessException("请求更新的产品编码不能为空!");
+        if(null == productGroupVo.getId()){
+            throw new BusinessException("请求更新的编码不能为空!");
         }
         int result = productGroupService.updateProductGroup(productGroupVo);
         if(result <= 0){
@@ -126,4 +127,14 @@ public class ProductGroupController extends BaseController {
         return toAjax(productGroupService.deleteProductGroup(groupIds));
     }
 
+    /**
+     * 状态修改
+     */
+    @PreAuthorize("@ss.hasPermi('product:productGroup:edit')")
+    @Log(title = "产品组管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/changeGroupStatus")
+    public AjaxResult changeGroupStatus(@RequestBody ProductGroupVo productGroupVo)
+    {
+        return toAjax(productGroupService.updateProductGroupStatus(productGroupVo));
+    }
 }

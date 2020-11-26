@@ -10,6 +10,8 @@ import java.math.BigDecimal;
  */
 public class ProductGroupVo extends BaseEntity implements Serializable {
 
+    private Integer id;
+
     private String groupNum;
 
     private String groupName;
@@ -38,5 +40,13 @@ public class ProductGroupVo extends BaseEntity implements Serializable {
 
     public void setGroupState(Integer groupState) {
         this.groupState = groupState;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

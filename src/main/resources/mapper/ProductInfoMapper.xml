@@ -45,6 +45,14 @@
 		order by create_time desc
 	</select>
 
+	<select id="getProductById" parameterType="java.lang.Integer" resultType="com.lfs.admin.model.entity.ProductInfoEntity">
+		select id,product_num productNum,business_num businessNum,trade_face tradeFace,
+		unit,price,product_type productType,state,product_detail productDetail,
+		date_format(create_time,'%Y-%m-%d %T') createTime from lfs_product
+		where id = #{id}
+	</select>
+
+
 	<select id="getProductByCode" parameterType="java.lang.Long" resultType="com.lfs.admin.model.entity.ProductInfoEntity">
 		select id,product_num productNum,business_num businessNum,trade_face tradeFace,
 		unit,price,product_type productType,state,product_detail productDetail,

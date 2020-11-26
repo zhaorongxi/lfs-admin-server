@@ -52,6 +52,11 @@ public class ProductInfoServiceImpl implements ProductInfoService {
     }
 
     @Override
+    public ProductInfoEntity getProductById(Integer id) {
+        return productInfoDao.getProductById(id);
+    }
+
+    @Override
     public List<ProductInfoEntity> queryProductList(ProductInfoVo productInfoVo) {
         return productInfoDao.queryProductList(productInfoVo);
     }

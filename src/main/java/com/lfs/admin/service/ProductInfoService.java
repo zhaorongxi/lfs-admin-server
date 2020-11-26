@@ -18,6 +18,8 @@ public interface ProductInfoService {
 
     ProductInfoEntity getProductByCode(Long productCode);
 
+    ProductInfoEntity getProductById(Integer id);
+
     List<ProductInfoEntity> queryProductList(ProductInfoVo productInfoVo);
 
     int updateProductInfo(ProductInfoVo productInfoVo);

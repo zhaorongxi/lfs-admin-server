@@ -12,16 +12,13 @@ public interface ProductGroupDao {
 
     List<ProductGroupEntity> queryProductGroupList(ProductGroupVo productGroupVo);
 
-    /**
-     * 根据产品编码获取产品详情
-     * @param productCode
-     * @return
-     */
+    ProductGroupEntity getProductGroupById(@Param("id") Integer id);
+
     ProductGroupEntity getProductGroupByCode(@Param("groupNum") String groupNum);
 
     int updateProductGroup(ProductGroupVo productGroupVo);
 
-    int updateProductStatus(ProductGroupVo productGroupVo);
+    int updateProductGroupStatus(ProductGroupVo productGroupVo);
 
     int addProductGroup(ProductGroupVo productGroupVo);
 
